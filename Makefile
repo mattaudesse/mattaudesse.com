@@ -1,7 +1,8 @@
 .default_goal := build
 .phony: build-hs test-hs repl-hs watch-hs
 .phony: build-ps test-ps repl-ps watch-ps deps-ps
-.phony: build-static build clean deployable serve dump-contacts todo
+.phony: build-static build clean deployable deploy
+.phony: serve dump-contacts todo backup-db
 
 
 ### Haskell ####################################################################
@@ -87,6 +88,9 @@ DOCKER_CONTAINER_ID = `docker container ls --all --latest --quiet`
 DOCKER_WORK_DIR     = `docker run mattaudesse-com-centos pwd`
 DOCKER_EXE_RELPATH  = `docker run mattaudesse-com-centos find .stack-work/dist -name mattaudesse-com -type f`
 LINUX_BINARY_PATH   = .mattaudesse-com-centos
+UID_AND_HOST        = mattaudesse@mattaudesse.com
+LIVE_APP_PATH       = $(UID_AND_HOST):/home/mattaudesse/webapps/mattaudesse_com
+RSYNC               = rsync -vzhr --progress
 
 deployable: build
 	@docker build -t mattaudesse-com-centos .
@@ -96,6 +100,11 @@ deployable: build
 		$(LINUX_BINARY_PATH)
 	@echo A new centos binary has been stashed to $(LINUX_BINARY_PATH)
 
+deploy: deployable
+	@$(RSYNC) --inplace dist supervisor.ini $(LIVE_APP_PATH)
+	@$(RSYNC) $(LINUX_BINARY_PATH) $(LIVE_APP_PATH)/mattaudesse.com
+	@ssh $(UID_AND_HOST) 'supervisorctl restart mattaudesse.com'
+
 serve: build
 	@stack exec -- mattaudesse-com serve
 
@@ -104,3 +113,9 @@ dump-contacts: build-hs
 
 todo:
 	@ag -i --ignore Makefile todo . || echo "No TODOs left!"
+
+backup-db:
+	@mkdir -p .db-backup
+	@$(RSYNC) \
+		$(LIVE_APP_PATH)/mattaudesse.com.db \
+		.db-backup/`date -u +"%Y-%m-%d-%H-%M"`-mattaudesse.com.db

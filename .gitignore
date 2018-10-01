@@ -4,6 +4,7 @@
 .purs-output/
 .shake/
 .stack-work/
+.db-backup/
 dist/
 output/
 ps/docs/
