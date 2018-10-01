@@ -1,7 +1,8 @@
 .default_goal := build
 .phony: build-hs test-hs repl-hs watch-hs
 .phony: build-ps test-ps repl-ps watch-ps deps-ps
-.phony: build-static build clean deployable serve dump-contacts todo
+.phony: build-static build clean deployable
+.phony: serve dump-contacts todo backup-db
 
 
 ### Haskell ####################################################################
@@ -104,3 +105,9 @@ dump-contacts: build-hs
 
 todo:
 	@ag -i --ignore Makefile todo . || echo "No TODOs left!"
+
+backup-db:
+	@mkdir -p .db-backup
+	@rsync -vzhr --progress \
+		mattaudesse@mattaudesse.com:/home/mattaudesse/webapps/mattaudesse_com/mattaudesse.com.db \
+		.db-backup/`date -u +"%Y-%m-%d-%H-%M"`-mattaudesse.com.db
