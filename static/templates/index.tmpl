@@ -1,0 +1,93 @@
+{{> static/templates/_top.tmpl }}
+<div id="root-home" class="grid-container">
+
+    <div class="row">
+        <div class="col-1"></div>
+        <div class="col-10 justify">
+            <h1>Matt Audesse</h1>
+            <p>
+                Hi there. I'm a software engineer who works for startups and
+                distributed tech businesses remotely from Maine.
+            </p>
+        </div>
+    </div>
+
+    <div id="row-github" class="row">
+        <div class="col-2">
+            <a id="logo-github" href="https://github.com/mattaudesse">
+                <img class="tilt-on-hover"
+                       alt="Read the source"
+                       src="/assets/img/icon-github.png">
+            </a>
+        </div>
+        <div class="col-9 justify">
+            <p>
+                You can find some of my projects (including the
+
+                <a href="https://github.com/mattaudesse/mattaudesse.com">
+                source code for this site</a>,
+
+                which I built with
+
+                <img id="logo-haskell"
+                    alt="Haskell"
+                    src="/assets/img/icon-haskell.ico">
+                <a href="https://www.haskell.org/">Haskell</a>
+
+                and
+
+                <img id="logo-purescript"
+                    alt="PureScript"
+                    src="/assets/img/icon-purescript.svg">
+                <a href="http://www.purescript.org">PureScript</a>)
+
+                on
+
+                <a href="https://github.com/mattaudesse">GitHub</a>.
+            </p>
+        </div>
+    </div>
+
+    <div id="row-contact" class="row">
+        <div class="col-2 col-float-right">
+            <a id="icon-mail" href="/contact">
+                <img class="tilt-on-hover"
+                       alt="Say hello"
+                       src="/assets/img/icon-mail.png">
+            </a>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-9 justify">
+            <p>
+                I'm often available for consulting engagements and would be
+                very interested to hear from you if you're looking for
+                technical help. Feel free to
+                <a href="/contact">contact me</a>,
+                even if it's just to say hello.
+            </p>
+        </div>
+    </div>
+
+    <div id="row-gpg" class="row">
+        <div class="col-2">
+            <a href="https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work"
+                 id="icon-secured">
+
+                <img class="tilt-on-hover"
+                       alt="On the Internet, nobody knows you're a dog"
+                       src="/assets/img/icon-secured.png">
+            </a>
+        </div>
+        <div class="col-9">
+            <p>
+                I'm in the habit of
+                <a href="matt-audesse-git.asc">signing</a>
+                my commits. You can verify authenticity like so:
+            </p>
+
+            {{{gitVerifyBlock}}}
+        </div>
+    </div>
+
+</div><!-- /.grid-container -->
+{{> static/templates/_bottom.tmpl }}

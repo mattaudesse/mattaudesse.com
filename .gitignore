@@ -1,0 +1,17 @@
+.psc-package/
+.psci_modules/
+.pulp-cache/
+.purs-output/
+.shake/
+.stack-work/
+dist/
+output/
+ps/docs/
+
+*.cabal
+
+.purs-repl
+.mattaudesse-com-centos
+
+mattaudesse.com.db*
+mattaudesse.com.yaml

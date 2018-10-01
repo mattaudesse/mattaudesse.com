@@ -1,0 +1,114 @@
+_base-dep: &base-dep base >=4.7 && <5
+
+name:         mattaudesse-com-lib
+version:      0.1.0
+synopsis:     Matt Audesse's personal website
+description:  See README at <https://github.com/mattaudesse/mattaudesse.com#readme>
+category:     Website
+author:       Matt Audesse
+maintainer:   Matt Audesse <matt@mattaudesse.com>
+license:      AllRightsReserved
+license-file: LICENSE
+github:       mattaudesse/mattaudesse.com
+homepage:     https://mattaudesse.com
+ghc-options:  -Wall
+
+extra-source-files:
+    - Dockerfile
+    - LICENSE
+    - Makefile
+    - README.md
+    - package.yaml
+    - ps/**/*
+    - psc-package.json
+    - stack.yaml
+    - static/**/*
+
+library:
+    source-dirs: hs/lib
+    dependencies:
+        - *base-dep
+        - HaskellNet
+        - HaskellNet-SSL
+        - aeson
+        - async
+        - bytestring
+        - clay
+        - conduit
+        - http-types
+        - monad-logger
+        - mtl
+        - mustache
+        - pandoc
+        - persistent
+        - persistent-sqlite
+        - persistent-template
+        - resource-pool
+        - safe
+        - safe-exceptions
+        - servant-server
+        - shake
+        - slick
+        - text
+        - time
+        - validation
+        - wai
+        - wai-app-static
+        - warp
+        - yaml
+
+executables:
+    mattaudesse-com:
+        main:         Main.hs
+        source-dirs:  hs/app
+        dependencies:
+            - *base-dep
+            - mattaudesse-com-lib
+            - unix
+        ghc-options:
+            - -Wall
+            - -threaded
+            - -rtsopts
+            - -with-rtsopts=-N
+
+    mattaudesse-com-static:
+        main:         BuildStatic.hs
+        source-dirs:  hs/build-static
+        dependencies:
+            - *base-dep
+            - mattaudesse-com-lib
+        ghc-options:
+            - -Wall
+            - -threaded
+            - -rtsopts
+            - -with-rtsopts=-N
+            - -main-is BuildStatic
+
+tests:
+    spec:
+        source-dirs: hs/test
+        main:        Spec.hs
+        dependencies:
+            - *base-dep
+            - aeson
+            - async
+            - case-insensitive
+            - hspec
+            - hspec-wai
+            - hspec-wai-json
+            - http-types
+            - mattaudesse-com-lib
+            - monad-logger
+            - mtl
+            - neat-interpolation
+            - persistent
+            - persistent-sqlite
+            - servant-server
+            - text
+            - time
+        ghc-options:
+            - -Wall
+            - -threaded
+            - -rtsopts
+            - -with-rtsopts=-N
+            - -main-is Spec
