@@ -142,12 +142,11 @@ build =  do
             cssPath            = "dist/assets/style/mattaudesse.com.css"
             gpgPath            = "static/matt-audesse-git.asc"
             gitVerifyBlockPath = "static/templates/_git-verify-block.md"
-            notFound404Path    = "dist/404.html"
 
         "site" ~> S.need [ outNameFor  "/"
                          , outNameFor  "/contact"
+                         , outNameFor  "/404"
                          , staticToDist gpgPath
-                         , notFound404Path
                          , cssPath
                          , "static-assets"
                          ]
@@ -157,17 +156,11 @@ build =  do
             gvb <- mdToHtml gitVerifyBlockPath
             pure $ ctxRoot copyright' gvb
 
-        "/contact" %>:
-            pure (ctxContact copyright')
+        "/contact" %>: pure (ctxContact copyright')
+        "/404"     %>: pure (ctx404     copyright')
 
         staticToDist gpgPath ~>
             copyStatic gpgPath
-
-        notFound404Path %> \out -> do
-            tmpl <- compileTemplate' "static/templates/404.tmpl"
-            let html = T.unpack $ substitute tmpl $ toJSON $ ctx404 copyright'
-            S.writeFile' out html
-            validateHtml out
 
         cssPath ~> do
             S.writeFile' cssPath $ TL.unpack $ C.renderWith C.compact [] css

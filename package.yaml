@@ -92,6 +92,7 @@ tests:
             - *base-dep
             - aeson
             - async
+            - bytestring
             - case-insensitive
             - hspec
             - hspec-wai
@@ -106,6 +107,7 @@ tests:
             - servant-server
             - text
             - time
+            - wai-extra
         ghc-options:
             - -Wall
             - -threaded

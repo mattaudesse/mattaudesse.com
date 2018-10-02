@@ -19,6 +19,9 @@ module Site.Core
     , SmtpHostName
     , SmtpSendResult(..)
     , VisitorIpAddr
+    , acceptApplicationJson
+    , contentTypeApplicationJson
+    , contentTypeTextHtml
     , waitAppT
     , withBody
     ) where
@@ -36,6 +39,7 @@ import Data.Time.Clock          (UTCTime, getCurrentTime)
 import Data.Time.Format         (defaultTimeLocale, formatTime)
 import Database.Persist.Sql     (SqlPersistT, runSqlPool)
 import Database.Persist.Sqlite  (ConnectionPool)
+import Network.HTTP.Types       (Header, hAccept, hContentType)
 import Servant                  (ServantErr, errBody)
 
 import qualified Data.Text.Lazy              as DTL
@@ -208,6 +212,19 @@ waitAppT =  liftIO . wait
 
 
 --------------------------------------------------------------------------------
+
 -- | Customize a `ServantErr` having `s` status with `b` body contents
 withBody :: (ToJSON b, Monad m) => ServantErr -> b -> AppT m a
 withBody s b = throwError (s { errBody = encode b })
+
+
+--------------------------------------------------------------------------------
+
+acceptApplicationJson :: Header
+acceptApplicationJson =  (hAccept, "application/json")
+
+contentTypeApplicationJson :: Header
+contentTypeApplicationJson =  (hContentType, "application/json")
+
+contentTypeTextHtml :: Header
+contentTypeTextHtml =  (hContentType, "text/html")

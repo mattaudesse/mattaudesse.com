@@ -6,6 +6,7 @@ module SpecCommon
     , SideEffect(..)
     , dummyUtc
     , effectsFrom
+    , getWith
     , localhost
     , resultOf
     ) where
@@ -16,12 +17,16 @@ import Control.Monad.Except     (ExceptT(..), runExceptT)
 import Control.Monad.IO.Class   (MonadIO(..))
 import Control.Monad.Reader     (ReaderT(..), runReaderT)
 import Control.Monad.Writer     (MonadWriter(..), WriterT(..), execWriterT)
+import Data.ByteString          (ByteString)
 import Data.Text                (Text)
 import Data.Time.Calendar       (fromGregorian)
 import Data.Time.Clock          (UTCTime(..), secondsToDiffTime)
 import Data.Time.Format         (defaultTimeLocale, formatTime)
 import Database.Persist.Sql     (runSqlPool)
+import Network.HTTP.Types       (Header, methodGet)
+import Network.Wai.Test         (SResponse)
 import Servant                  (ServantErr(..))
+import Test.Hspec.Wai           (WaiSession, request)
 
 import Site.Api.Contact (VisitorIpAddr)
 import Site.Core
@@ -134,3 +139,9 @@ resultOf :: Env -> AppT TestM a -> IO (Either ServantErr a)
 resultOf env =
     let evalTestM (TestM w) = runWriterT w >>= return . fst
      in evalTestM . (runAppTestM env)
+
+
+--------------------------------------------------------------------------------
+
+getWith :: [Header] -> ByteString -> WaiSession SResponse
+getWith hdrs path = request methodGet path hdrs ""

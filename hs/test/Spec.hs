@@ -8,10 +8,11 @@ import Database.Persist.Sqlite (createSqlitePool)
 import Database.Persist.Types  (Filter)
 import Test.Hspec              (before_, describe, hspec)
 
-import Site.Api.Contact     (VisitorMsg, migrateVisitorMsg)
-import Site.Api.ContactSpec (contactHandler, visitorMsgValidation)
-import Site.Api.PingSpec    (pingHandler)
-import Site.Core            (Config(..), Env(..))
+import Site.Api.Contact         (VisitorMsg, migrateVisitorMsg)
+import Site.Api.ContactSpec     (contactHandler, visitorMsgValidation)
+import Site.Api.PingSpec        (pingHandler)
+import Site.Api.Response404Spec (response404Handler)
+import Site.Core                (Config(..), Env(..))
 
 
 main :: IO ()
@@ -33,5 +34,6 @@ main = do
         visitorMsgValidation
 
         describe "HTTP" $ do
-            pingHandler    env
-            contactHandler env
+            response404Handler env
+            pingHandler        env
+            contactHandler     env
