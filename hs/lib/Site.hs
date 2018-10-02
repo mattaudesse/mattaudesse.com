@@ -7,6 +7,7 @@ module Site
     , siteApp
     ) where
 
+import Control.Exception               (IOException, catch)
 import Control.Monad.Logger            (NoLoggingT(..))
 import Data.Monoid                     ((<>))
 import Data.Pool                       (Pool)
@@ -17,6 +18,7 @@ import Database.Persist.Sqlite         (createSqlitePool)
 import Database.Persist.Types          (Entity(..))
 import Network.HTTP.Types              (status404)
 import Network.HTTP.Types.Header       (hAccept, hContentType)
+import Network.Wai                     (ResponseReceived)
 import Network.Wai.Handler.Warp        (run)
 import Servant                         ((:<|>)(..), (:>))
 import Servant.Utils.StaticFiles       (serveDirectoryWith)
@@ -28,6 +30,7 @@ import qualified Data.ByteString as BS
 import qualified Data.Yaml       as Y
 import qualified Network.Wai     as N
 import qualified Servant         as S
+import qualified Site.Core       as C
 
 import Site.Api         (Api, apiServerFrom)
 import Site.Api.Contact (formattedWithRecordId, visitorMsgsByCreationAsc)
@@ -52,22 +55,28 @@ dumpContacts = do
 
 handle404ApplicationJson :: N.Response
 handle404ApplicationJson =
-    N.responseLBS status404 [("Content-Type", "application/json")] ""
+    N.responseLBS status404 [C.contentTypeApplicationJson] ""
 
 handle404TextHtml :: N.Response
 handle404TextHtml =
-    N.responseFile status404 [("Content-Type", "text/html")] "dist/404.html" Nothing
+    N.responseFile status404 [C.contentTypeTextHtml] "dist/404/index.html" Nothing
 
 handle404 :: N.Application
-handle404 req res = res $ if isAppjson
-    then handle404ApplicationJson
-    else handle404TextHtml
+handle404 req res =
+    handle `catch` fallback
 
-    where appJson   = encodeUtf8 "application/json"
-          toLower'  = encodeUtf8 . toLower . decodeUtf8
-          headers   = (fmap . fmap) toLower' $ N.requestHeaders req
-          isAppjson = (hAccept,      appJson) `elem` headers
-                   || (hContentType, appJson) `elem` headers
+    where fallback :: IOException -> IO ResponseReceived
+          fallback _ = res $ N.responseLBS status404 [C.contentTypeTextHtml] ""
+
+          handle = res $ if isAppjson
+             then handle404ApplicationJson
+             else handle404TextHtml
+
+             where appJson   = encodeUtf8 "application/json"
+                   toLower'  = encodeUtf8 . toLower . decodeUtf8
+                   headers   = (fmap . fmap) toLower' $ N.requestHeaders req
+                   isAppjson = (hAccept,      appJson) `elem` headers
+                            || (hContentType, appJson) `elem` headers
 
 
 --------------------------------------------------------------------------------
