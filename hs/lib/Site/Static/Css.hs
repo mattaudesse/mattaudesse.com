@@ -2,9 +2,11 @@
 module Site.Static.Css (css) where
 
 import Prelude hiding (div, rem, span)
-import Control.Monad  (forM_)
-import Data.Monoid    ((<>))
-import Data.Text      (pack)
+
+import Control.Monad      (forM_)
+import Data.List.NonEmpty (NonEmpty((:|)))
+import Data.Monoid        ((<>))
+import Data.Text          (pack)
 import Clay
 
 import qualified Clay.Media as M
@@ -59,7 +61,7 @@ borderRadius2px =  borderRadius (px 2) (px 2) (px 2) (px 2)
 
 boxShadowWith :: Double -> Color -> Css
 boxShadowWith blurRadius c =
-    boxShadow (px 0) (px 0) (px blurRadius) c
+    boxShadow $ (bsColor c $ shadowWithBlur (px 0) (px 0) (px blurRadius)) :| []
 
 
 --------------------------------------------------------------------------------
@@ -226,7 +228,7 @@ gridSystem =  do
 
     -- .col-1, .., .col-12 { width: 96% }
     let cs = ((".col-" <>) . pack . show) <$> [1..12 :: Int]
-    element (intersperse ", " cs) ? width (pct 96)
+    element (intercalate ", " cs) ? width (pct 96)
 
     ".col-1-sm"  ? width (pct 04.33)
     ".col-2-sm"  ? width (pct 12.66)

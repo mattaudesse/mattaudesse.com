@@ -1,5 +1,6 @@
-resolver: lts-11.22
+resolver: lts-13.30
 extra-deps:
-    - slick-0.1.1.0
+  - slick-0.1.1.0
+  - HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157,1843
 packages:
-    - .
+  - .
