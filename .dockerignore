@@ -1,0 +1,14 @@
+.db-backup/
+.git/
+.psc-package/
+.psci_modules/
+.pulp-cache/
+.purs-output/
+.shake/
+.stack-work/
+
+.mattaudesse-com-centos
+
+dist/
+
+mattaudesse.com.db*
