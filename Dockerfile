@@ -1,4 +1,4 @@
-from centos:7.5.1804
+from centos:7.6.1810
 
 run yum install -y zlib-devel
 
