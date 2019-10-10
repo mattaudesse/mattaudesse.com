@@ -9,4 +9,4 @@ import Site.Api.ContactSpec (contactValidation)
 
 main :: Effect Unit
 main =  run [specReporter] do
-    contactValidation
+  contactValidation

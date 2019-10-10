@@ -31,23 +31,23 @@ type Copyright   = String
 type Description = String
 
 data CtxRoot = CtxRoot
-    { title          :: Title
-    , copyright      :: Copyright
-    , description    :: Description
-    , gitVerifyBlock :: String
-    } deriving (Generic, Show)
+  { title          :: Title
+  , copyright      :: Copyright
+  , description    :: Description
+  , gitVerifyBlock :: String
+  } deriving (Generic, Show)
 
 data CtxContact = CtxContact
-    { title       :: Title
-    , copyright   :: Copyright
-    , description :: Description
-    } deriving (Generic, Show)
+  { title       :: Title
+  , copyright   :: Copyright
+  , description :: Description
+  } deriving (Generic, Show)
 
 data Ctx404 = Ctx404
-    { title       :: Title
-    , copyright   :: Copyright
-    , description :: Description
-    } deriving (Generic, Show)
+  { title       :: Title
+  , copyright   :: Copyright
+  , description :: Description
+  } deriving (Generic, Show)
 
 instance ToJSON CtxRoot
 instance ToJSON CtxContact
@@ -55,39 +55,39 @@ instance ToJSON Ctx404
 
 ctxRoot :: Copyright -> String -> CtxRoot
 ctxRoot cp gitVerifyBlock = CtxRoot
-    { title       = "Matt Audesse"
-    , copyright   = cp
-    , description = "I'm a software engineer who works for startups and\
-                   \ distributed tech businesses remotely from Maine.\
-                   \ This is my personal website, built with Haskell and\
-                   \ PureScript."
-    , gitVerifyBlock
-    }
+  { title       = "Matt Audesse"
+  , copyright   = cp
+  , description = "I'm a software engineer who works for startups and\
+                 \ distributed tech businesses remotely from Maine.\
+                 \ This is my personal website, built with Haskell and\
+                 \ PureScript."
+  , gitVerifyBlock
+  }
 
 ctxContact :: Copyright -> CtxContact
 ctxContact cp = CtxContact
-    { title       = "Say hello"
-    , copyright   = cp
-    , description = "Feel free to contact me for business reasons or\
-                   \ just to say hi."
-    }
+  { title       = "Say hello"
+  , copyright   = cp
+  , description = "Feel free to contact me for business reasons or\
+                 \ just to say hi."
+  }
 
 ctx404 :: Copyright -> Ctx404
 ctx404 cp = Ctx404
-    { title       = "Not found"
-    , copyright   = cp
-    , description = "404 Not Found"
-    }
+  { title       = "Not found"
+  , copyright   = cp
+  , description = "404 Not Found"
+  }
 
 --------------------------------------------------------------------------------
 
 mkCopyright :: MonadUTC m => m String
 mkCopyright =  do
-    cy <- utcCurrentYear
-    let years = case cy `compare` "2018" of
-            GT -> "2018 - " <> cy
-            _  -> "2018"
-    pure $ "© " <> years <> " Matt Audesse"
+  cy <- utcCurrentYear
+  let years = case cy `compare` "2018" of
+        GT -> "2018 - " <> cy
+        _  -> "2018"
+  pure $ "© " <> years <> " Matt Audesse"
 
 
 --------------------------------------------------------------------------------
@@ -100,71 +100,71 @@ outNameFor n = "dist" <> n <> "/index.html"
 
 mdToHtml :: FilePath -> S.Action String
 mdToHtml path = liftIO $ do
-    let exts = P.def { P.readerExtensions = P.githubMarkdownExtensions }
+  let exts = P.def { P.readerExtensions = P.githubMarkdownExtensions }
 
-    res <- P.runIO $ do
-        doc <- liftIO $ readFile path
-        ast <- P.readMarkdown exts $ T.pack doc
-        P.writeHtml5String P.def ast
+  res <- P.runIO $ do
+    doc <- liftIO $ readFile path
+    ast <- P.readMarkdown exts $ T.pack doc
+    P.writeHtml5String P.def ast
 
-    html <- P.handleError res
-    pure $ T.unpack html
+  html <- P.handleError res
+  pure $ T.unpack html
 
 
 --------------------------------------------------------------------------------
 
 validateHtml :: FilePath -> S.Action ()
 validateHtml f =
-    S.cmd_ (S.EchoStdout False) ["htmlhint", f]
+  S.cmd_ (S.EchoStdout False) ["htmlhint", f]
 
 (%>:) :: ToJSON ctx => String -> S.Action ctx -> S.Rules ()
 n %>: f =
-    let tmplName = "static/templates" <> n <> "/index.tmpl"
-        outName  = outNameFor n
+  let tmplName = "static/templates" <> n <> "/index.tmpl"
+      outName  = outNameFor n
 
-    in outName %> \out -> do
-        ctx  <- f
-        tmpl <- compileTemplate' tmplName
-        let html = T.unpack $ substitute tmpl (toJSON ctx)
-        S.writeFile' out html
-        validateHtml out
+  in outName %> \out -> do
+    ctx  <- f
+    tmpl <- compileTemplate' tmplName
+    let html = T.unpack $ substitute tmpl (toJSON ctx)
+    S.writeFile' out html
+    validateHtml out
 
 
 --------------------------------------------------------------------------------
 
 build :: IO ()
 build =  do
-    let opts = S.shakeOptions { S.shakeThreads = 0, S.shakeColor = True }
-    copyright' <- mkCopyright
+  let opts = S.shakeOptions { S.shakeThreads = 0, S.shakeColor = True }
+  copyright' <- mkCopyright
 
-    S.shakeArgs opts $ do
-        let copyStatic p       = S.copyFileChanged p (staticToDist p)
-            cssPath            = "dist/assets/style/mattaudesse.com.css"
-            gpgPath            = "static/matt-audesse-git.asc"
-            gitVerifyBlockPath = "static/templates/_git-verify-block.md"
+  S.shakeArgs opts $ do
+    let copyStatic p       = S.copyFileChanged p (staticToDist p)
+        cssPath            = "dist/assets/style/mattaudesse.com.css"
+        gpgPath            = "static/matt-audesse-git.asc"
+        gitVerifyBlockPath = "static/templates/_git-verify-block.md"
 
-        "site" ~> S.need [ outNameFor  "/"
-                         , outNameFor  "/contact"
-                         , outNameFor  "/404"
-                         , staticToDist gpgPath
-                         , cssPath
-                         , "static-assets"
-                         ]
+    "site" ~> S.need [ outNameFor  "/"
+                     , outNameFor  "/contact"
+                     , outNameFor  "/404"
+                     , staticToDist gpgPath
+                     , cssPath
+                     , "static-assets"
+                     ]
 
-        "/" %>: do
-            S.need [gitVerifyBlockPath]
-            gvb <- mdToHtml gitVerifyBlockPath
-            pure $ ctxRoot copyright' gvb
+    "/" %>: do
+      S.need [gitVerifyBlockPath]
+      gvb <- mdToHtml gitVerifyBlockPath
+      pure $ ctxRoot copyright' gvb
 
-        "/contact" %>: pure (ctxContact copyright')
-        "/404"     %>: pure (ctx404     copyright')
+    "/contact" %>: pure (ctxContact copyright')
+    "/404"     %>: pure (ctx404     copyright')
 
-        staticToDist gpgPath ~>
-            copyStatic gpgPath
+    staticToDist gpgPath ~>
+      copyStatic gpgPath
 
-        cssPath ~> do
-            S.writeFile' cssPath $ TL.unpack $ C.renderWith C.compact [] css
+    cssPath ~> do
+      S.writeFile' cssPath $ TL.unpack $ C.renderWith C.compact [] css
 
-        "static-assets" ~> do
-            assets <- S.getDirectoryFiles "." [ "static/assets//*" ]
-            traverse_ copyStatic assets
+    "static-assets" ~> do
+      assets <- S.getDirectoryFiles "." [ "static/assets//*" ]
+      traverse_ copyStatic assets

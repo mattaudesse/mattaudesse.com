@@ -1,9 +1,9 @@
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
 module Site.Api
-    ( Api
-    , apiServerFrom
-    ) where
+  ( Api
+  , apiServerFrom
+  ) where
 
 import Control.Monad.Reader (runReaderT)
 import Servant              ((:<|>)(..))
@@ -19,12 +19,12 @@ type Api = Ping :<|> Contact
 
 apiServerFrom :: Env -> S.Server Api
 apiServerFrom env =
-    S.hoistServer proxy toHandler routes
+  S.hoistServer proxy toHandler routes
 
-    where toHandler :: AppT IO a -> S.Handler a
-          toHandler a = S.Handler $ runReaderT (runApp a) env
+  where toHandler :: AppT IO a -> S.Handler a
+        toHandler a = S.Handler $ runReaderT (runApp a) env
 
-          proxy :: S.Proxy Api
-          proxy =  S.Proxy
+        proxy :: S.Proxy Api
+        proxy =  S.Proxy
 
-          routes = ping :<|> contact
+        routes = ping :<|> contact

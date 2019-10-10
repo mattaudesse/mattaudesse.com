@@ -18,11 +18,11 @@ workdir $APPDIR
 
 # Pre-cache project dependencies -----------------------------------------------
 copy --chown=matt:matt \
-    LICENSE \
-    Setup.hs \
-    package.yaml \
-    stack.yaml \
-    $APPDIR/
+  LICENSE \
+  Setup.hs \
+  package.yaml \
+  stack.yaml \
+  $APPDIR/
 
 run $STACK build --only-dependencies
 run $STACK build --only-dependencies mattaudesse-com-lib:exe:mattaudesse-com

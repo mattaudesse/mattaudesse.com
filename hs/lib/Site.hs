@@ -1,11 +1,7 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE TypeOperators     #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Site
-    ( dumpContacts
-    , serve
-    , siteApp
-    ) where
+module Site (dumpContacts, serve, siteApp) where
 
 import Control.Exception               (IOException, catch)
 import Control.Monad.Logger            (NoLoggingT(..))
@@ -42,51 +38,51 @@ import Site.Migrate     (migrateAll)
 
 dumpContacts :: IO ()
 dumpContacts = do
-    pool <- createPool
-    cs   <- runSqlPool visitorMsgsByCreationAsc pool
+  pool <- createPool
+  cs   <- runSqlPool visitorMsgsByCreationAsc pool
 
-    let msg c = pack ((take 50 $ repeat '-') ++ "\n")
-             <> formattedWithRecordId (entityVal c) (entityKey c)
+  let msg c = pack ((take 50 $ repeat '-') ++ "\n")
+           <> formattedWithRecordId (entityVal c) (entityKey c)
 
-    mapM_ (putStrLn . unpack . msg) cs
+  mapM_ (putStrLn . unpack . msg) cs
 
 
 --------------------------------------------------------------------------------
 
 handle404ApplicationJson :: N.Response
 handle404ApplicationJson =
-    N.responseLBS status404 [C.contentTypeApplicationJson] ""
+  N.responseLBS status404 [C.contentTypeApplicationJson] ""
 
 handle404TextHtml :: N.Response
 handle404TextHtml =
-    N.responseFile status404 [C.contentTypeTextHtml] "dist/404/index.html" Nothing
+  N.responseFile status404 [C.contentTypeTextHtml] "dist/404/index.html" Nothing
 
 handle404 :: N.Application
 handle404 req res =
-    handle `catch` fallback
+  handle `catch` fallback
 
-    where fallback :: IOException -> IO ResponseReceived
-          fallback _ = res $ N.responseLBS status404 [C.contentTypeTextHtml] ""
+  where fallback :: IOException -> IO ResponseReceived
+        fallback _ = res $ N.responseLBS status404 [C.contentTypeTextHtml] ""
 
-          handle = res $ if isAppjson
-             then handle404ApplicationJson
-             else handle404TextHtml
+        handle = res $ if isAppjson
+          then handle404ApplicationJson
+          else handle404TextHtml
 
-             where appJson   = encodeUtf8 "application/json"
-                   toLower'  = encodeUtf8 . toLower . decodeUtf8
-                   headers   = (fmap . fmap) toLower' $ N.requestHeaders req
-                   isAppjson = (hAccept,      appJson) `elem` headers
-                            || (hContentType, appJson) `elem` headers
+          where appJson   = encodeUtf8 "application/json"
+                toLower'  = encodeUtf8 . toLower . decodeUtf8
+                headers   = (fmap . fmap) toLower' $ N.requestHeaders req
+                isAppjson = (hAccept,      appJson) `elem` headers
+                         || (hContentType, appJson) `elem` headers
 
 
 --------------------------------------------------------------------------------
 
 staticWebAppSettings :: StaticSettings
 staticWebAppSettings =
-    (defaultWebAppSettings ("./dist" :: FilePath))
-    { ssIndices    = [ unsafeToPiece "index.html" ]
-    , ss404Handler = Just handle404
-    }
+  (defaultWebAppSettings ("./dist" :: FilePath))
+  { ssIndices    = [ unsafeToPiece "index.html" ]
+  , ss404Handler = Just handle404
+  }
 
 
 type Site = ("api" :> Api) :<|> S.Raw
@@ -94,11 +90,11 @@ type Site = ("api" :> Api) :<|> S.Raw
 
 siteApp :: Env -> N.Application
 siteApp env =
-    S.serve proxy (apiServerFrom env :<|> distRaw)
+  S.serve proxy (apiServerFrom env :<|> distRaw)
 
-    where distRaw = serveDirectoryWith staticWebAppSettings
-          proxy   :: S.Proxy Site
-          proxy   =  S.Proxy
+  where distRaw = serveDirectoryWith staticWebAppSettings
+        proxy   :: S.Proxy Site
+        proxy   =  S.Proxy
 
 
 createPool :: IO (Pool SqlBackend)
@@ -107,13 +103,13 @@ createPool = runNoLoggingT $ createSqlitePool "mattaudesse.com.db" 8
 
 serve :: IO ()
 serve = do
-    confRaw <- BS.readFile "mattaudesse.com.yaml"
-    conf    <- Y.decodeThrow confRaw
-    pool    <- createPool
-    runSqlPool (runMigration migrateAll) pool
+  confRaw <- BS.readFile "mattaudesse.com.yaml"
+  conf    <- Y.decodeThrow confRaw
+  pool    <- createPool
+  runSqlPool (runMigration migrateAll) pool
 
-    let env = Env pool conf
+  let env = Env pool conf
 
-    info . pack $ "Launching site on port: " ++ show (port conf)
+  info . pack $ "Launching site on port: " ++ show (port conf)
 
-    run (port conf) (siteApp env)
+  run (port conf) (siteApp env)

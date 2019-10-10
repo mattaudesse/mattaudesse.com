@@ -1,6 +1,4 @@
-module Site.HTTP
-    ( postJson
-    ) where
+module Site.HTTP (postJson) where
 
 import Prelude
 import Data.Either                  (Either(Left))
@@ -20,14 +18,14 @@ applicationJson =  MediaType "application/json"
 
 postJson :: forall a. WriteForeign a => AX.URL -> a -> AX.Affjax String
 postJson url s = AX.affjax
-    AXRes.string
-    { method:          Left POST
-    , headers:         [ ReqH.Accept      applicationJson
-                       , ReqH.ContentType applicationJson
-                       ]
-    , content:         Just $ AXReq.string $ writeJSON s
-    , username:        Nothing
-    , password:        Nothing
-    , withCredentials: false
-    , url
-    }
+  AXRes.string
+  { method:          Left POST
+  , headers:         [ ReqH.Accept      applicationJson
+                     , ReqH.ContentType applicationJson
+                     ]
+  , content:         Just $ AXReq.string $ writeJSON s
+  , username:        Nothing
+  , password:        Nothing
+  , withCredentials: false
+  , url
+  }

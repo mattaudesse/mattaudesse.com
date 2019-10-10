@@ -2,14 +2,14 @@
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE OverloadedStrings          #-}
 module SpecCommon
-    ( TestM(..)
-    , SideEffect(..)
-    , dummyUtc
-    , effectsFrom
-    , getWith
-    , localhost
-    , resultOf
-    ) where
+  ( TestM(..)
+  , SideEffect(..)
+  , dummyUtc
+  , effectsFrom
+  , getWith
+  , localhost
+  , resultOf
+  ) where
 
 import Control.Concurrent.Async (async)
 import Control.Exception        (throw)
@@ -30,17 +30,17 @@ import Test.Hspec.Wai           (WaiSession, request)
 
 import Site.Api.Contact (VisitorIpAddr)
 import Site.Core
-    ( AppT(..)
-    , Env(..)
-    , EmailRecipient
-    , EmailSubject
-    , MonadAsync(..)
-    , MonadDB(..)
-    , MonadLog(..)
-    , MonadSmtp(..)
-    , MonadUTC(..)
-    , SmtpSendResult(..)
-    )
+  ( AppT(..)
+  , Env(..)
+  , EmailRecipient
+  , EmailSubject
+  , MonadAsync(..)
+  , MonadDB(..)
+  , MonadLog(..)
+  , MonadSmtp(..)
+  , MonadUTC(..)
+  , SmtpSendResult(..)
+  )
 
 
 --------------------------------------------------------------------------------
@@ -55,72 +55,72 @@ localhost =  "127.0.0.1"
 --------------------------------------------------------------------------------
 
 data SideEffect
-    = Async   [SideEffect]
-    | LogInfo Text
-    | LogCrit Text
-    | Smtp    EmailRecipient EmailSubject Text
-    | DbQuery
-    | Utc
-      deriving (Eq, Show)
+  = Async   [SideEffect]
+  | LogInfo Text
+  | LogCrit Text
+  | Smtp    EmailRecipient EmailSubject Text
+  | DbQuery
+  | Utc
+    deriving (Eq, Show)
 
 
 --------------------------------------------------------------------------------
 
 newtype TestM a = TestM (WriterT [SideEffect] IO a)
-    deriving ( Functor
-             , Applicative
-             , Monad
-             , MonadWriter [SideEffect]
-             , MonadIO
-             )
+  deriving ( Functor
+           , Applicative
+           , Monad
+           , MonadWriter [SideEffect]
+           , MonadIO
+           )
 
 
 instance MonadLog TestM where
-    info msg = tell [LogInfo msg]
-    crit msg = tell [LogCrit msg]
+  info msg = tell [LogInfo msg]
+  crit msg = tell [LogCrit msg]
 
 
 instance MonadUTC TestM where
-    utcNow = do
-        tell [Utc]
-        return dummyUtc
+  utcNow = do
+    tell [Utc]
+    return dummyUtc
 
-    utcCurrentYear = do
-        t <- utcNow
-        pure $ formatTime defaultTimeLocale "%Y" t
+  utcCurrentYear = do
+    t <- utcNow
+    pure $ formatTime defaultTimeLocale "%Y" t
 
 
 instance MonadSmtp TestM where
-    sendEmail recipient subject body = do
-        tell [Smtp recipient subject body]
-        return SmtpSendSuccess
+  sendEmail recipient subject body = do
+    tell [Smtp recipient subject body]
+    return SmtpSendSuccess
 
 
 instance MonadSmtp (AppT TestM) where
-    sendEmail recipient subject body =
-        AppT $ ReaderT (\_ -> sendEmail recipient subject body)
+  sendEmail recipient subject body =
+    AppT $ ReaderT (\_ -> sendEmail recipient subject body)
 
 
 instance MonadDB (AppT TestM) where
-    runDb query = AppT $ ReaderT $ \env -> ExceptT $ do
-        tell [DbQuery]
-        r <- liftIO $ runSqlPool query (dbPool env)
-        pure $ Right r
+  runDb query = AppT $ ReaderT $ \env -> ExceptT $ do
+    tell [DbQuery]
+    r <- liftIO $ runSqlPool query (dbPool env)
+    pure $ Right r
 
 
 -- Simulate concurrency
 instance MonadAsync (AppT TestM) where
-    runAsync a = AppT $ ReaderT $ \env -> ExceptT $ do
-        let f (TestM w) = liftIO $ runWriterT w
+  runAsync a = AppT $ ReaderT $ \env -> ExceptT $ do
+    let f (TestM w) = liftIO $ runWriterT w
 
-        (r, effs) <- f $ runAppTestM env a
-        tell [Async effs]
+    (r, effs) <- f $ runAppTestM env a
+    tell [Async effs]
 
-        case r of
-            Left  e  -> throw e
-            Right r' -> do
-                r'' <- liftIO $ async (pure r')
-                pure $ Right r''
+    case r of
+      Left  e  -> throw e
+      Right r' -> do
+        r'' <- liftIO $ async (pure r')
+        pure $ Right r''
 
 
 --------------------------------------------------------------------------------
@@ -131,14 +131,14 @@ runAppTestM env a = runExceptT $ runReaderT (runApp a) env
 
 effectsFrom :: Env -> AppT TestM a -> IO [SideEffect]
 effectsFrom env =
-    let logTestM (TestM w) = execWriterT w
-     in logTestM . (runAppTestM env)
+  let logTestM (TestM w) = execWriterT w
+   in logTestM . (runAppTestM env)
 
 
 resultOf :: Env -> AppT TestM a -> IO (Either ServantErr a)
 resultOf env =
-    let evalTestM (TestM w) = runWriterT w >>= return . fst
-     in evalTestM . (runAppTestM env)
+  let evalTestM (TestM w) = runWriterT w >>= return . fst
+   in evalTestM . (runAppTestM env)
 
 
 --------------------------------------------------------------------------------

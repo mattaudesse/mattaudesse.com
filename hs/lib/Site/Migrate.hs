@@ -6,4 +6,4 @@ import Site.Api.Contact     (migrateVisitorMsg)
 
 migrateAll :: Migration
 migrateAll =  do
-    migrateVisitorMsg
+  migrateVisitorMsg

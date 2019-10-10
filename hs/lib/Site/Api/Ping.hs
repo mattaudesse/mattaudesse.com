@@ -11,10 +11,11 @@ import Site.Core     (AppT)
 
 
 newtype Pong = Pong
-    { pong :: String
-    } deriving (Show)
+  { pong :: String
+  } deriving (Show)
 
 $(deriveJSON defaultOptions ''Pong)
+
 
 pong' :: Pong
 pong' =  Pong { pong = "pong" }

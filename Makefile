@@ -34,43 +34,43 @@ $(PS_BUNDLE_DIR):
 
 build-ps: $(PS_BUNDLE_DIR) deps-ps
 	@pulp \
-		--psc-package \
-		build \
-		--build-path $(PS_BUILD_DIR) \
-		--src-path   $(PS_SRC_DIR) \
-		--test-path  $(PS_TEST_DIR) \
-		--jobs 6 \
-		--optimise \
-		| closure-compiler \
-		--compilation_level SIMPLE \
-		--js_output_file $(PS_BUNDLE_DIST)
+	  --psc-package \
+	  build \
+	  --build-path $(PS_BUILD_DIR) \
+	  --src-path   $(PS_SRC_DIR) \
+	  --test-path  $(PS_TEST_DIR) \
+	  --jobs 6 \
+	  --optimise \
+	  | closure-compiler \
+	  --compilation_level SIMPLE \
+	  --js_output_file $(PS_BUNDLE_DIST)
 
 test-ps: deps-ps
 	@pulp \
-		--psc-package \
-		test \
-		--main       Spec \
-		--build-path $(PS_BUILD_DIR) \
-		--src-path   $(PS_SRC_DIR) \
-		--test-path  $(PS_TEST_DIR)
+	  --psc-package \
+	  test \
+	  --main       Spec \
+	  --build-path $(PS_BUILD_DIR) \
+	  --src-path   $(PS_SRC_DIR) \
+	  --test-path  $(PS_TEST_DIR)
 
 repl-ps: deps-ps
 	@pulp \
-		--psc-package \
-		repl \
-		--src-path  $(PS_SRC_DIR) \
-		--test-path $(PS_TEST_DIR)
+	  --psc-package \
+	  repl \
+	  --src-path  $(PS_SRC_DIR) \
+	  --test-path $(PS_TEST_DIR)
 
 watch-ps: deps-ps
 	@pulp \
-		--psc-package \
-		--before clear \
-		--watch \
-		test \
-		--main       Spec \
-		--build-path $(PS_BUILD_DIR) \
-		--src-path   $(PS_SRC_DIR) \
-		--test-path  $(PS_TEST_DIR)
+	  --psc-package \
+	  --before clear \
+	  --watch \
+	  test \
+	  --main       Spec \
+	  --build-path $(PS_BUILD_DIR) \
+	  --src-path   $(PS_SRC_DIR) \
+	  --test-path  $(PS_TEST_DIR)
 
 
 ### Common #####################################################################
@@ -96,8 +96,8 @@ deployable: build
 	@docker build -t mattaudesse-com-centos .
 	@docker container create mattaudesse-com-centos >/dev/null
 	@docker cp \
-		$(DOCKER_CONTAINER_ID):$(DOCKER_WORK_DIR)/$(DOCKER_EXE_RELPATH) \
-		$(LINUX_BINARY_PATH)
+	  $(DOCKER_CONTAINER_ID):$(DOCKER_WORK_DIR)/$(DOCKER_EXE_RELPATH) \
+	  $(LINUX_BINARY_PATH)
 	@echo A new centos binary has been stashed to $(LINUX_BINARY_PATH)
 
 deploy: deployable
@@ -117,5 +117,5 @@ todo:
 backup-db:
 	@mkdir -p .db-backup
 	@$(RSYNC) \
-		$(LIVE_APP_PATH)/mattaudesse.com.db \
-		.db-backup/`date -u +"%Y-%m-%d-%H-%M"`-mattaudesse.com.db
+	  $(LIVE_APP_PATH)/mattaudesse.com.db \
+	  .db-backup/`date -u +"%Y-%m-%d-%H-%M"`-mattaudesse.com.db

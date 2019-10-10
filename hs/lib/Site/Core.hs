@@ -5,26 +5,26 @@
 {-# LANGUAGE NamedFieldPuns             #-}
 {-# LANGUAGE RecordWildCards            #-}
 module Site.Core
-    ( AppT(..)
-    , Config(..)
-    , Email
-    , EmailRecipient
-    , EmailSubject
-    , Env(..)
-    , MonadAsync(..)
-    , MonadDB(..)
-    , MonadLog(..)
-    , MonadSmtp(..)
-    , MonadUTC(..)
-    , SmtpHostName
-    , SmtpSendResult(..)
-    , VisitorIpAddr
-    , acceptApplicationJson
-    , contentTypeApplicationJson
-    , contentTypeTextHtml
-    , waitAppT
-    , withBody
-    ) where
+  ( AppT(..)
+  , Config(..)
+  , Email
+  , EmailRecipient
+  , EmailSubject
+  , Env(..)
+  , MonadAsync(..)
+  , MonadDB(..)
+  , MonadLog(..)
+  , MonadSmtp(..)
+  , MonadUTC(..)
+  , SmtpHostName
+  , SmtpSendResult(..)
+  , VisitorIpAddr
+  , acceptApplicationJson
+  , contentTypeApplicationJson
+  , contentTypeTextHtml
+  , waitAppT
+  , withBody
+  ) where
 
 import Control.Concurrent.Async (Async, async, wait)
 import Control.Exception        (throw)
@@ -58,153 +58,153 @@ type VisitorIpAddr  = Text
 
 
 data Config = Config
-    { port         :: Int
-    , smtpHostName :: SmtpHostName
-    , smtpUserName :: AUTH.UserName
-    , smtpPassword :: AUTH.Password
-    , smtpSender   :: EmailSender
-    } deriving (Eq, Show)
+  { port         :: Int
+  , smtpHostName :: SmtpHostName
+  , smtpUserName :: AUTH.UserName
+  , smtpPassword :: AUTH.Password
+  , smtpSender   :: EmailSender
+  } deriving (Eq, Show)
 
 $(deriveJSON defaultOptions ''Config)
 
 
 data Env = Env
-    { dbPool :: ConnectionPool
-    , config :: Config
-    }
+  { dbPool :: ConnectionPool
+  , config :: Config
+  }
 
 
 newtype AppT m a = AppT
-    { runApp :: ReaderT Env (ExceptT ServantErr m) a
-    } deriving ( Functor
-               , Applicative
-               , Monad
-               , MonadReader Env
-               , MonadError  ServantErr
-               , MonadIO
-               )
+  { runApp :: ReaderT Env (ExceptT ServantErr m) a
+  } deriving ( Functor
+             , Applicative
+             , Monad
+             , MonadReader Env
+             , MonadError  ServantErr
+             , MonadIO
+             )
 
 
 --------------------------------------------------------------------------------
 
 class Monad m => MonadLog m where
-    info :: Text -> m ()
-    crit :: Text -> m ()
+  info :: Text -> m ()
+  crit :: Text -> m ()
 
 instance MonadLog IO where
-    info = runStdoutLoggingT . logInfoN
-    crit = runStderrLoggingT . logErrorN
+  info = runStdoutLoggingT . logInfoN
+  crit = runStderrLoggingT . logErrorN
 
 instance MonadLog m => MonadLog (ExceptT ServantErr m) where
-    info s = ExceptT $ do
-        info s
-        pure $ Right ()
+  info s = ExceptT $ do
+    info s
+    pure $ Right ()
 
-    crit s = ExceptT $ do
-        crit s
-        pure $ Right ()
+  crit s = ExceptT $ do
+    crit s
+    pure $ Right ()
 
 instance MonadLog m => MonadLog (AppT m) where
-    info s = AppT $ ReaderT (\_ -> info s)
-    crit s = AppT $ ReaderT (\_ -> crit s)
+  info s = AppT $ ReaderT (\_ -> info s)
+  crit s = AppT $ ReaderT (\_ -> crit s)
 
 
 --------------------------------------------------------------------------------
 
 class Monad m => MonadUTC m where
-    utcNow         :: m UTCTime
-    utcCurrentYear :: m String
+  utcNow         :: m UTCTime
+  utcCurrentYear :: m String
 
 instance MonadUTC IO where
-    utcNow = getCurrentTime
+  utcNow = getCurrentTime
 
-    utcCurrentYear = do
-        t <- utcNow
-        pure $ formatTime defaultTimeLocale "%Y" t
+  utcCurrentYear = do
+    t <- utcNow
+    pure $ formatTime defaultTimeLocale "%Y" t
 
 instance MonadUTC m => MonadUTC (ExceptT ServantErr m) where
-    utcNow = ExceptT $ do
-        n <- utcNow
-        pure $ Right n
+  utcNow = ExceptT $ do
+    n <- utcNow
+    pure $ Right n
 
-    utcCurrentYear = ExceptT $ do
-        cy <- utcCurrentYear
-        pure $ Right cy
+  utcCurrentYear = ExceptT $ do
+    cy <- utcCurrentYear
+    pure $ Right cy
 
 instance MonadUTC m => MonadUTC (AppT m) where
-    utcNow         = AppT $ ReaderT (const utcNow)
-    utcCurrentYear = AppT $ ReaderT (const utcCurrentYear)
+  utcNow         = AppT $ ReaderT (const utcNow)
+  utcCurrentYear = AppT $ ReaderT (const utcCurrentYear)
 
 
 --------------------------------------------------------------------------------
 
 class MonadDB m where
-    runDb :: SqlPersistT IO b -> m b
+  runDb :: SqlPersistT IO b -> m b
 
 instance MonadDB (AppT IO) where
-    runDb query = do
-        pool <- asks dbPool
-        liftIO $ runSqlPool query pool
+  runDb query = do
+    pool <- asks dbPool
+    liftIO $ runSqlPool query pool
 
 
 --------------------------------------------------------------------------------
 
 data SmtpSendResult
-    = SmtpSendSuccess
-    | SmtpSendFailedToAuthenticate
+  = SmtpSendSuccess
+  | SmtpSendFailedToAuthenticate
 
 
 class Monad m => MonadSmtp m where
-    sendEmail :: EmailRecipient
-              -> EmailSubject
-              -> Text
-              -> m SmtpSendResult
+  sendEmail :: EmailRecipient
+            -> EmailSubject
+            -> Text
+            -> m SmtpSendResult
 
 instance MonadSmtp (AppT IO) where
-    sendEmail recipient subject body = do
-        Config { smtpHostName
-               , smtpUserName
-               , smtpPassword
-               , smtpSender
-               } <- asks config
+  sendEmail recipient subject body = do
+    Config { smtpHostName
+           , smtpUserName
+           , smtpPassword
+           , smtpSender
+           } <- asks config
 
-        liftIO $ SMTP.doSMTPSTARTTLS smtpHostName $ \conn -> do
-            authed <- SMTP.authenticate
-                AUTH.LOGIN
-                smtpUserName
-                smtpPassword
-                conn
+    liftIO $ SMTP.doSMTPSTARTTLS smtpHostName $ \conn -> do
+      authed <- SMTP.authenticate
+        AUTH.LOGIN
+        smtpUserName
+        smtpPassword
+        conn
 
-            if not authed
-                then pure SmtpSendFailedToAuthenticate
+      if not authed
+        then pure SmtpSendFailedToAuthenticate
 
-                else do
-                    SMTP.sendPlainTextMail
-                        (unpack recipient)
-                        (unpack smtpSender)
-                        (unpack subject)
-                        (DTL.fromStrict body)
-                        conn
-                    pure SmtpSendSuccess
+        else do
+          SMTP.sendPlainTextMail
+            (unpack recipient)
+            (unpack smtpSender)
+            (unpack subject)
+            (DTL.fromStrict body)
+            conn
+          pure SmtpSendSuccess
 
 instance MonadSmtp m => MonadSmtp (ExceptT ServantErr m) where
-    sendEmail recipient subject body = ExceptT $ do
-        r <- sendEmail recipient subject body
-        pure $ Right r
+  sendEmail recipient subject body = ExceptT $ do
+    r <- sendEmail recipient subject body
+    pure $ Right r
 
 
 --------------------------------------------------------------------------------
 
 class MonadIO m => MonadAsync m where
-    runAsync :: m a -> m (Async a)
+  runAsync :: m a -> m (Async a)
 
 instance MonadAsync (AppT IO) where
-    runAsync a = AppT $ ReaderT $ \conf ->
-        liftIO $ async $ do
-           r <- runExceptT $ runReaderT (runApp a) conf
-           case r of
-               Left  e  -> throw e
-               Right r' -> pure r'
+  runAsync a = AppT $ ReaderT $ \conf ->
+    liftIO $ async $ do
+      r <- runExceptT $ runReaderT (runApp a) conf
+      case r of
+        Left  e  -> throw e
+        Right r' -> pure r'
 
 -- | Await completion of a thread spawned by `runAsync`
 waitAppT :: MonadIO m => Async a -> m a

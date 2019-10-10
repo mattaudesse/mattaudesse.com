@@ -9,19 +9,19 @@ import Site                 (dumpContacts, serve)
 
 printHelpAndExit :: IO ()
 printHelpAndExit = do
-    let msg = [ "Invalid argument; must be one of:"
-              , "* serve"
-              , "* dump-contacts"
-              ]
+  let msg = [ "Invalid argument; must be one of:"
+            , "* serve"
+            , "* dump-contacts"
+            ]
 
-    putStrLn $ intercalate "\n" msg
-    exitImmediately $ ExitFailure 1
+  putStrLn $ intercalate "\n" msg
+  exitImmediately $ ExitFailure 1
 
 
 main :: IO ()
 main = do
-    args <- getArgs
-    case args of
-        ["serve"]         -> serve
-        ["dump-contacts"] -> dumpContacts
-        _                 -> printHelpAndExit
+  args <- getArgs
+  case args of
+    ["serve"]         -> serve
+    ["dump-contacts"] -> dumpContacts
+    _                 -> printHelpAndExit

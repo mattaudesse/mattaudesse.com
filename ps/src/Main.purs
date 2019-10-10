@@ -13,7 +13,7 @@ import Site.Api.Contact (contactForm)
 
 main :: Effect Unit
 main =  launchAff_ $ do
-    rootContact <- HA.selectElement $ QuerySelector "#root-contact"
-    maybe (pure unit)
-          (liftEffect <<< HA.runHalogenAff <<< runUI contactForm unit)
-          rootContact
+  rootContact <- HA.selectElement $ QuerySelector "#root-contact"
+  maybe (pure unit)
+        (liftEffect <<< HA.runHalogenAff <<< runUI contactForm unit)
+        rootContact
