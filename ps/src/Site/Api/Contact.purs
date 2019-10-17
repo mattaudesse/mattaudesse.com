@@ -1,5 +1,5 @@
 module Site.Api.Contact
-  ( Query
+  ( Action
   , CommentBody
   , Email
   , FirstName
@@ -13,24 +13,27 @@ module Site.Api.Contact
   ) where
 
 import Prelude
+import Affjax.StatusCode         (StatusCode(..))
 import Data.Array                (length, filter, (!!))
 import Data.Array.NonEmpty       (NonEmptyArray)
 import Data.Bifunctor            (bimap)
 import Data.Char.Unicode         (isSpace)
+import Data.Const                (Const)
 import Data.Either               (isLeft, isRight)
 import Data.Foldable             (all)
 import Data.Generic.Rep          (class Generic)
 import Data.Generic.Rep.Show     (genericShow)
 import Data.Maybe                (Maybe(..), maybe)
-import Data.String               as S
 import Data.String.CodeUnits     (toCharArray)
 import Data.Validation.Semigroup (V, invalid, toEither)
 import Effect.Aff                (Aff)
-import Effect.Console            (log)
-import Halogen                   as H
-import Halogen.HTML              as HH
-import Halogen.HTML.Events       as HE
-import Halogen.HTML.Properties   as HP
+import Effect.Console            (info)
+
+import Data.String             as S
+import Halogen                 as H
+import Halogen.HTML            as HH
+import Halogen.HTML.Events     as HE
+import Halogen.HTML.Properties as HP
 
 import Site.Component.Spinner (spinner)
 import Site.HTTP              as HTTP
@@ -163,58 +166,54 @@ type State =
   , req     :: Request
   }
 
-data Query a
-  = UpdateFirstName      String a
-  | UpdateLastName       String a
-  | UpdateEmail          String a
-  | UpdateWebsite        String a
-  | UpdatePhone          String a
-  | UpdateCommentBody    String a
-  | SubmitVisitorMessage a
+
+data Action
+  = UpdateFirstName      String
+  | UpdateLastName       String
+  | UpdateEmail          String
+  | UpdateWebsite        String
+  | UpdatePhone          String
+  | UpdateCommentBody    String
+  | SubmitVisitorMessage
 
 
-eval :: Query ~> H.ComponentDSL State Query Void Aff
-eval = case _ of
-  UpdateFirstName s next -> do
+handleAction
+  :: forall slots
+   . Action
+  -> H.HalogenM State Action slots Void Aff Unit
+handleAction = case _ of
+  UpdateFirstName s -> do
     H.modify_ (_ { req { firstName = s }})
-    pure next
 
-  UpdateLastName s next -> do
+  UpdateLastName s -> do
     H.modify_ (_ { req { lastName = s }})
-    pure next
 
-  UpdateEmail s next -> do
+  UpdateEmail s -> do
     H.modify_ (_ { req { email = s }})
-    pure next
 
-  UpdateWebsite s next -> do
+  UpdateWebsite s -> do
     let s' = if s == "" then Nothing else Just s
     H.modify_ (_ { req { website = s' }})
-    pure next
 
-  UpdatePhone s next -> do
+  UpdatePhone s -> do
     let s' = if s == "" then Nothing else Just s
     H.modify_ (_ { req { phone = s' }})
-    pure next
 
-  UpdateCommentBody s next -> do
+  UpdateCommentBody s -> do
     H.modify_ (_ { req { commentBody = s }})
-    pure next
 
-  SubmitVisitorMessage next -> do
+  SubmitVisitorMessage -> do
     req <- H.gets _.req
     let valid = isRight $ toEither $ validRequest req
 
     when valid $ do
       H.modify_ (_ { sending = true })
 
-      resp <- H.liftAff $ HTTP.postJson "/api/contact" req
+      { status: StatusCode sc } <- H.liftAff $ HTTP.postJson "/api/contact" req
 
-      H.liftEffect $ log ("POST /api/contact: " <> resp.response)
+      H.liftEffect $ info ("POST /api/contact: HTTP " <> show sc)
 
       H.modify_ (_ { sending = false, sent = true })
-
-    pure next
 
 
 --------------------------------------------------------------------------------
@@ -225,7 +224,7 @@ offsetCol n =
    in HH.div [ HP.class_ (HH.ClassName cls) ] []
 
 
-renderForm :: State -> H.ComponentHTML Query
+renderForm :: forall m. State -> H.ComponentHTML Action () m
 renderForm s = HH.div_
   [ HH.div [ HP.class_ (HH.ClassName "row") ]
            [ offsetCol 2
@@ -250,13 +249,13 @@ renderForm s = HH.div_
                     [ HH.textarea [ HP.name         "comment-body"
                                   , HP.id_          "comment-body"
                                   , HP.required     true
-                                  , HE.onValueInput (HE.input UpdateCommentBody)
+                                  , HE.onValueInput $ Just <<< UpdateCommentBody
                                   ]]]
 
   , HH.div [ HP.class_ (HH.ClassName "row") ]
            [ offsetCol 5
            , HH.div [ HP.class_ (HH.ClassName "col-2") ]
-                    [ HH.a [ HE.onClick (HE.input_ SubmitVisitorMessage)
+                    [ HH.a [ HE.onClick \_ -> Just SubmitVisitorMessage
                            , HP.id_     "btn-send"
                            , HP.classes sendButtonClasses
                            ]
@@ -281,7 +280,7 @@ renderForm s = HH.div_
                        , HP.value    val
                        , HP.type_    type_
                        , HP.required required
-                       , HE.onValueInput (HE.input trigger)
+                       , HE.onValueInput $ Just <<< trigger
                        ] <> extraProps
 
           labelCol  = HH.div [ HP.classes [ HH.ClassName "col-3"
@@ -296,7 +295,7 @@ renderForm s = HH.div_
 
 
 
-renderSending :: State -> H.ComponentHTML Query
+renderSending :: forall m. State -> H.ComponentHTML Action () m
 renderSending _ = HH.div_
   [ HH.div [ HP.class_ (HH.ClassName "row") ]
            [ offsetCol 2
@@ -310,7 +309,7 @@ renderSending _ = HH.div_
            [ offsetCol 4, spinner           ]]
 
 
-renderSent :: State -> H.ComponentHTML Query
+renderSent :: forall m. State -> H.ComponentHTML Action () m
 renderSent _ = HH.div_
   [ HH.div [ HP.class_ (HH.ClassName "row") ]
            [ offsetCol 2
@@ -334,7 +333,7 @@ renderSent _ = HH.div_
                            [ HH.text "Return to homepage" ]]]]
 
 
-render :: State -> H.ComponentHTML Query
+render :: forall m. State -> H.ComponentHTML Action () m
 render s
   | s.sent    = renderSent    s
   | s.sending = renderSending s
@@ -343,11 +342,10 @@ render s
 
 --------------------------------------------------------------------------------
 
-contactForm :: H.Component HH.HTML Query Unit Void Aff
-contactForm =  H.component
+contactForm :: H.Component HH.HTML (Const Void) Unit Void Aff
+contactForm =  H.mkComponent
   { render
-  , eval
-  , receiver:     const Nothing
+  , eval:         H.mkEval $ H.defaultEval { handleAction = handleAction }
   , initialState: const { sent:    false
                         , sending: false
                         , req:     { firstName:   ""
