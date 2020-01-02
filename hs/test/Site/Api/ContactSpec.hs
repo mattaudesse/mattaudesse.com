@@ -8,7 +8,7 @@ import Data.List.NonEmpty as NE
 import Data.Monoid        ((<>))
 import Data.Text          (pack)
 import NeatInterpolation  (text)
-import Servant            (ServantErr(..), err400, err403)
+import Servant            (ServerError(..), err400, err403)
 import Test.Hspec         (Spec, describe, it, shouldBe, shouldContain)
 
 import Site.Core  (Env)

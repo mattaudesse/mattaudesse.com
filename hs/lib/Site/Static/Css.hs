@@ -339,10 +339,9 @@ codeBlocks =  "div.sourceCode" ? do
     code ? do
       color "#657B83"
 
-      "a.sourceLine" ? do
+      span ? do
         color      comfortableText
         fontFamily [] [monospace]
-        fontSize   (em 1.1)
         hover      & color comfortableText
         before     & textDecoration none
 

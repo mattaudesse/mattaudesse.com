@@ -25,7 +25,7 @@ import Data.Time.Format         (defaultTimeLocale, formatTime)
 import Database.Persist.Sql     (runSqlPool)
 import Network.HTTP.Types       (Header, methodGet)
 import Network.Wai.Test         (SResponse)
-import Servant                  (ServantErr(..))
+import Servant                  (ServerError(..))
 import Test.Hspec.Wai           (WaiSession, request)
 
 import Site.Api.Contact (VisitorIpAddr)
@@ -125,7 +125,7 @@ instance MonadAsync (AppT TestM) where
 
 --------------------------------------------------------------------------------
 
-runAppTestM :: Env -> AppT TestM a -> TestM (Either ServantErr a)
+runAppTestM :: Env -> AppT TestM a -> TestM (Either ServerError a)
 runAppTestM env a = runExceptT $ runReaderT (runApp a) env
 
 
@@ -135,7 +135,7 @@ effectsFrom env =
    in logTestM . (runAppTestM env)
 
 
-resultOf :: Env -> AppT TestM a -> IO (Either ServantErr a)
+resultOf :: Env -> AppT TestM a -> IO (Either ServerError a)
 resultOf env =
   let evalTestM (TestM w) = runWriterT w >>= return . fst
    in evalTestM . (runAppTestM env)

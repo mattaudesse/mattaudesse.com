@@ -1,9 +1,9 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE FlexibleInstances          #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE NamedFieldPuns             #-}
+{-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE TemplateHaskell            #-}
 module Site.Core
   ( AppT(..)
   , Config(..)
@@ -40,7 +40,7 @@ import Data.Time.Format         (defaultTimeLocale, formatTime)
 import Database.Persist.Sql     (SqlPersistT, runSqlPool)
 import Database.Persist.Sqlite  (ConnectionPool)
 import Network.HTTP.Types       (Header, hAccept, hContentType)
-import Servant                  (ServantErr, errBody)
+import Servant                  (ServerError, errBody)
 
 import qualified Data.Text.Lazy              as DTL
 import qualified Network.HaskellNet.Auth     as AUTH
@@ -75,12 +75,12 @@ data Env = Env
 
 
 newtype AppT m a = AppT
-  { runApp :: ReaderT Env (ExceptT ServantErr m) a
+  { runApp :: ReaderT Env (ExceptT ServerError m) a
   } deriving ( Functor
              , Applicative
              , Monad
              , MonadReader Env
-             , MonadError  ServantErr
+             , MonadError  ServerError
              , MonadIO
              )
 
@@ -95,7 +95,7 @@ instance MonadLog IO where
   info = runStdoutLoggingT . logInfoN
   crit = runStderrLoggingT . logErrorN
 
-instance MonadLog m => MonadLog (ExceptT ServantErr m) where
+instance MonadLog m => MonadLog (ExceptT ServerError m) where
   info s = ExceptT $ do
     info s
     pure $ Right ()
@@ -122,7 +122,7 @@ instance MonadUTC IO where
     t <- utcNow
     pure $ formatTime defaultTimeLocale "%Y" t
 
-instance MonadUTC m => MonadUTC (ExceptT ServantErr m) where
+instance MonadUTC m => MonadUTC (ExceptT ServerError m) where
   utcNow = ExceptT $ do
     n <- utcNow
     pure $ Right n
@@ -187,7 +187,7 @@ instance MonadSmtp (AppT IO) where
             conn
           pure SmtpSendSuccess
 
-instance MonadSmtp m => MonadSmtp (ExceptT ServantErr m) where
+instance MonadSmtp m => MonadSmtp (ExceptT ServerError m) where
   sendEmail recipient subject body = ExceptT $ do
     r <- sendEmail recipient subject body
     pure $ Right r
@@ -213,8 +213,8 @@ waitAppT =  liftIO . wait
 
 --------------------------------------------------------------------------------
 
--- | Customize a `ServantErr` having `s` status with `b` body contents
-withBody :: (ToJSON b, Monad m) => ServantErr -> b -> AppT m a
+-- | Customize a `ServerError` having `s` status with `b` body contents
+withBody :: (ToJSON b, Monad m) => ServerError -> b -> AppT m a
 withBody s b = throwError (s { errBody = encode b })
 
 

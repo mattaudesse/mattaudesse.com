@@ -5,12 +5,12 @@
 
 packages:
 - completed:
-    hackage: slick-0.1.1.0@sha256:ac42ec7f26c6715a534fa182cfb5d3767a181932b40a26d56170ca6a141e5cfa,1584
+    hackage: HaskellNet-0.5.1@sha256:53f2cfffb140740691296f905a70143c859b571eea3f5cf5f7a4642851d9e38a,1584
     pantry-tree:
-      size: 535
-      sha256: e1403c15ab84c05b0320a4360299b1d095760b91831f0cc4a7dc12207963c045
+      size: 1437
+      sha256: e0806ea13b946dfc785bf9580e126cfcb8d3c6f21e1fbe313374745c3a8a8b99
   original:
-    hackage: slick-0.1.1.0
+    hackage: HaskellNet-0.5.1@sha256:53f2cfffb140740691296f905a70143c859b571eea3f5cf5f7a4642851d9e38a,1584
 - completed:
     hackage: HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157,1843
     pantry-tree:
@@ -18,9 +18,37 @@ packages:
       sha256: 33fbfd0d8bbaa689f0169d442861dafcdcd4fe795a4b42aa0bedbfa41aa65b23
   original:
     hackage: HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157,1843
+- completed:
+    hackage: connection-0.2.8@sha256:b33ed18b274e9d65ffefcda46ba3d6ff852bec1e7ffcb686985228dc52631c2e,1525
+    pantry-tree:
+      size: 386
+      sha256: c551e941b8b047a1f2ae6a44c15a405ddeb12132953dd6c782041c070ee3e358
+  original:
+    hackage: connection-0.2.8@sha256:b33ed18b274e9d65ffefcda46ba3d6ff852bec1e7ffcb686985228dc52631c2e,1525
+- completed:
+    hackage: mime-mail-0.4.14@sha256:22e54d99c3f9f21004c929f0cf0c7ab75fcee5e0666c03517157be61be6fea93,1647
+    pantry-tree:
+      size: 439
+      sha256: 85b015dbc632b2796dfc1b6b750f4a7906c62c4067af0f27460fbf38c712b6e4
+  original:
+    hackage: mime-mail-0.4.14@sha256:22e54d99c3f9f21004c929f0cf0c7ab75fcee5e0666c03517157be61be6fea93,1647
+- completed:
+    hackage: slick-1.0.1.1@sha256:bd27d2237126f8883b14c4a1e6c19b6640ed8dae5ba18e9eb8877c1ee23d5c1e,1307
+    pantry-tree:
+      size: 601
+      sha256: dbea944bf224db953522e5c95142920aad976610e1d7434b7e71963670329ec3
+  original:
+    hackage: slick-1.0.1.1@sha256:bd27d2237126f8883b14c4a1e6c19b6640ed8dae5ba18e9eb8877c1ee23d5c1e,1307
+- completed:
+    hackage: socks-0.5.6@sha256:bb051589a00d18301556dbff82d89955a5534baf91a5e050e5f3a65f3415609c,1299
+    pantry-tree:
+      size: 693
+      sha256: 4ef36ec31595199c8a18a9d33749aee3802b6ec056ec99effeb528262db9fd62
+  original:
+    hackage: socks-0.5.6@sha256:bb051589a00d18301556dbff82d89955a5534baf91a5e050e5f3a65f3415609c,1299
 snapshots:
 - completed:
-    size: 500539
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/13/30.yaml
-    sha256: 59ad6b944c9903847fecdc1d4815e8500c1f9999d80fd1b4d2d66e408faec44b
-  original: lts-13.30
+    size: 524155
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/19.yaml
+    sha256: 9f79f6494473c9b46911364b94c4b5ef19ca8d35ebf62e46697cf651f198ee19
+  original: lts-14.19
