@@ -114,8 +114,9 @@ dump-contacts: build-hs
 todo:
 	@ag -i --ignore Makefile todo . || echo "No TODOs left!"
 
+backup-db: BACKUP-DB-DIR=.db-backup/`date -u +"%Y"`/`date -u +"%m"`
 backup-db:
-	@mkdir -p .db-backup
+	@mkdir -p $(BACKUP-DB-DIR)
 	@$(RSYNC) \
 	  $(LIVE_APP_PATH)/mattaudesse.com.db \
-	  .db-backup/`date -u +"%Y-%m-%d-%H-%M"`-mattaudesse.com.db
+	  $(BACKUP-DB-DIR)/`date -u +"%Y-%m-%d-%H-%M"`-mattaudesse.com.db
