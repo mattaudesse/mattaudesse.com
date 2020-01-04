@@ -92,7 +92,7 @@ UID_AND_HOST        = mattaudesse@mattaudesse.com
 LIVE_APP_PATH       = $(UID_AND_HOST):/home/mattaudesse/webapps/mattaudesse_com
 RSYNC               = rsync -vzhr --progress
 
-deployable: build
+deployable: build test-hs test-ps
 	@docker build -t mattaudesse-com-centos .
 	@docker container create mattaudesse-com-centos >/dev/null
 	@docker cp \
