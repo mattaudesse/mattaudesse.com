@@ -19,7 +19,7 @@ import Data.Array.NonEmpty       (NonEmptyArray)
 import Data.Bifunctor            (bimap)
 import Data.Char.Unicode         (isSpace)
 import Data.Const                (Const)
-import Data.Either               (isLeft, isRight)
+import Data.Either               (Either(..), isLeft, isRight)
 import Data.Foldable             (all)
 import Data.Generic.Rep          (class Generic)
 import Data.Generic.Rep.Show     (genericShow)
@@ -27,8 +27,9 @@ import Data.Maybe                (Maybe(..), maybe)
 import Data.String.CodeUnits     (toCharArray)
 import Data.Validation.Semigroup (V, invalid, toEither)
 import Effect.Aff                (Aff)
-import Effect.Console            (info)
+import Effect.Console            (info, error)
 
+import Affjax                  as AX
 import Data.String             as S
 import Halogen                 as H
 import Halogen.HTML            as HH
@@ -204,16 +205,22 @@ handleAction = case _ of
 
   SubmitVisitorMessage -> do
     req <- H.gets _.req
-    let valid = isRight $ toEither $ validRequest req
+
+    let valid     = isRight $ toEither $ validRequest req
+        msgPrefix = "POST /api/contact: "
 
     when valid $ do
       H.modify_ (_ { sending = true })
 
-      { status: StatusCode sc } <- H.liftAff $ HTTP.postJson "/api/contact" req
+      res <- H.liftAff $ HTTP.postJson "/api/contact" req
 
-      H.liftEffect $ info ("POST /api/contact: HTTP " <> show sc)
+      case res of
+        Left err ->
+          H.liftEffect $ error (msgPrefix <> AX.printError err)
 
-      H.modify_ (_ { sending = false, sent = true })
+        Right { status: StatusCode sc } -> do
+          H.liftEffect $ info (msgPrefix <> "HTTP " <> show sc)
+          H.modify_ (_ { sending = false, sent = true })
 
 
 --------------------------------------------------------------------------------

@@ -25,7 +25,7 @@ postJson
    . WriteForeign a
   => AX.URL
   -> a
-  -> Aff (AX.Response (Either AX.ResponseFormatError Argo.Json))
+  -> Aff (Either AX.Error (AX.Response Argo.Json))
 postJson url s = AX.request
   { method:          Left POST
   , headers:         [ ReqH.Accept      applicationJson
