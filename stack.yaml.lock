@@ -48,7 +48,7 @@ packages:
     hackage: socks-0.5.6@sha256:bb051589a00d18301556dbff82d89955a5534baf91a5e050e5f3a65f3415609c,1299
 snapshots:
 - completed:
-    size: 524155
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/19.yaml
-    sha256: 9f79f6494473c9b46911364b94c4b5ef19ca8d35ebf62e46697cf651f198ee19
-  original: lts-14.19
+    size: 524164
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/22.yaml
+    sha256: 7ad8f33179b32d204165a3a662c6269464a47a7e65a30abc38d01b5a38ec42c0
+  original: lts-14.22
