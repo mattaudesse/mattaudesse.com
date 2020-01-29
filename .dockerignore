@@ -10,5 +10,6 @@
 .mattaudesse-com-centos
 
 dist/
+output/
 
 mattaudesse.com.db*
