@@ -5,7 +5,6 @@ import Prelude hiding (div, rem, span)
 
 import Control.Monad      (forM_)
 import Data.List.NonEmpty (NonEmpty((:|)))
-import Data.Monoid        ((<>))
 import Data.Text          (pack)
 import Clay
 

@@ -1,15 +1,18 @@
 {-# LANGUAGE DataKinds                  #-}
-{-# LANGUAGE TemplateHaskell            #-}
-{-# LANGUAGE TypeOperators              #-}
-{-# LANGUAGE OverloadedStrings          #-}
-{-# LANGUAGE RecordWildCards            #-}
-{-# LANGUAGE QuasiQuotes                #-}
-{-# LANGUAGE TypeFamilies               #-}
-{-# LANGUAGE GADTs                      #-}
-{-# LANGUAGE MultiParamTypeClasses      #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE GADTs                      #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE NamedFieldPuns             #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE QuasiQuotes                #-}
+{-# LANGUAGE RecordWildCards            #-}
+{-# LANGUAGE StandaloneDeriving         #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeOperators              #-}
+{-# LANGUAGE UndecidableInstances       #-}
 module Site.Api.Contact
   ( Contact
   , VisitorMsgRequest(..)
@@ -32,8 +35,6 @@ import Data.Aeson             (defaultOptions)
 import Data.Aeson.TH          (deriveJSON)
 import Data.Bifunctor         (bimap)
 import Data.Char              (isSpace)
-import Data.Either            (either)
-import Data.Monoid            ((<>))
 import Data.Text              (Text, pack, splitOn, strip)
 import Data.Time.Clock        (UTCTime)
 import Data.Validation        (Validation(..), toEither)

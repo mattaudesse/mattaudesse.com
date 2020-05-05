@@ -5,7 +5,6 @@ module Site.Api.ContactSpec (contactHandler, visitorMsgValidation) where
 import Data.Aeson         (encode)
 import Data.Either        (isRight)
 import Data.List.NonEmpty as NE
-import Data.Monoid        ((<>))
 import Data.Text          (pack)
 import NeatInterpolation  (text)
 import Servant            (ServerError(..), err400, err403)

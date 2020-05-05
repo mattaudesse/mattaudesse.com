@@ -143,5 +143,5 @@ resultOf env =
 
 --------------------------------------------------------------------------------
 
-getWith :: [Header] -> ByteString -> WaiSession SResponse
+getWith :: [Header] -> ByteString -> WaiSession st SResponse
 getWith hdrs path = request methodGet path hdrs ""

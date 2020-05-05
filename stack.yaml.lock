@@ -5,33 +5,12 @@
 
 packages:
 - completed:
-    hackage: HaskellNet-0.5.1@sha256:53f2cfffb140740691296f905a70143c859b571eea3f5cf5f7a4642851d9e38a,1584
+    hackage: hspec-wai-json-0.10.1@sha256:67b405c38f0a9e2771480c8d3ecd8aeb8d8776a35d3b2906cb1b76c9538617e4,1629
     pantry-tree:
-      size: 1437
-      sha256: e0806ea13b946dfc785bf9580e126cfcb8d3c6f21e1fbe313374745c3a8a8b99
+      size: 349
+      sha256: fb9e89b79cde3276baa484c860c6b9eeebdbc1a5c43301293351a25bc4c08e87
   original:
-    hackage: HaskellNet-0.5.1@sha256:53f2cfffb140740691296f905a70143c859b571eea3f5cf5f7a4642851d9e38a,1584
-- completed:
-    hackage: HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157,1843
-    pantry-tree:
-      size: 577
-      sha256: 33fbfd0d8bbaa689f0169d442861dafcdcd4fe795a4b42aa0bedbfa41aa65b23
-  original:
-    hackage: HaskellNet-SSL-0.3.4.1@sha256:3ca14dd69460a380cf69aed40654fb10c4c03e344632b6a9986568c87feda157,1843
-- completed:
-    hackage: connection-0.2.8@sha256:b33ed18b274e9d65ffefcda46ba3d6ff852bec1e7ffcb686985228dc52631c2e,1525
-    pantry-tree:
-      size: 386
-      sha256: c551e941b8b047a1f2ae6a44c15a405ddeb12132953dd6c782041c070ee3e358
-  original:
-    hackage: connection-0.2.8@sha256:b33ed18b274e9d65ffefcda46ba3d6ff852bec1e7ffcb686985228dc52631c2e,1525
-- completed:
-    hackage: mime-mail-0.4.14@sha256:22e54d99c3f9f21004c929f0cf0c7ab75fcee5e0666c03517157be61be6fea93,1647
-    pantry-tree:
-      size: 439
-      sha256: 85b015dbc632b2796dfc1b6b750f4a7906c62c4067af0f27460fbf38c712b6e4
-  original:
-    hackage: mime-mail-0.4.14@sha256:22e54d99c3f9f21004c929f0cf0c7ab75fcee5e0666c03517157be61be6fea93,1647
+    hackage: hspec-wai-json-0.10.1@sha256:67b405c38f0a9e2771480c8d3ecd8aeb8d8776a35d3b2906cb1b76c9538617e4,1629
 - completed:
     hackage: slick-1.0.1.1@sha256:bd27d2237126f8883b14c4a1e6c19b6640ed8dae5ba18e9eb8877c1ee23d5c1e,1307
     pantry-tree:
@@ -40,15 +19,30 @@ packages:
   original:
     hackage: slick-1.0.1.1@sha256:bd27d2237126f8883b14c4a1e6c19b6640ed8dae5ba18e9eb8877c1ee23d5c1e,1307
 - completed:
-    hackage: socks-0.5.6@sha256:bb051589a00d18301556dbff82d89955a5534baf91a5e050e5f3a65f3415609c,1299
+    name: HaskellNet
+    version: 0.5.1
+    git: https://github.com/jtdaugherty/HaskellNet.git
     pantry-tree:
-      size: 693
-      sha256: 4ef36ec31595199c8a18a9d33749aee3802b6ec056ec99effeb528262db9fd62
+      size: 4011
+      sha256: 921b437ef18ccb04f889301c407263d6b5b72c5864803a000b1e61328988ce70
+    commit: 5aa1f3b009253b02c4822005ac59ee208a10a347
   original:
-    hackage: socks-0.5.6@sha256:bb051589a00d18301556dbff82d89955a5534baf91a5e050e5f3a65f3415609c,1299
+    git: https://github.com/jtdaugherty/HaskellNet.git
+    commit: 5aa1f3b009253b02c4822005ac59ee208a10a347
+- completed:
+    name: HaskellNet-SSL
+    version: 0.3.4.1
+    git: https://github.com/mattaudesse/HaskellNet-SSL.git
+    pantry-tree:
+      size: 841
+      sha256: c0b0e8af4afce8670b9ccc6656912808b0e2771685d9a5e8e8426ac849cf21bc
+    commit: 9a7a957f25c7586e9aa9e5202b59f1217380f299
+  original:
+    git: https://github.com/mattaudesse/HaskellNet-SSL.git
+    commit: 9a7a957f25c7586e9aa9e5202b59f1217380f299
 snapshots:
 - completed:
-    size: 524164
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/14/22.yaml
-    sha256: 7ad8f33179b32d204165a3a662c6269464a47a7e65a30abc38d01b5a38ec42c0
-  original: lts-14.22
+    size: 494638
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/15/11.yaml
+    sha256: 5747328cdcbb8fe9c96fc048b5566167c80dd176a41b52d3b363058e3cc1dc5d
+  original: lts-15.11

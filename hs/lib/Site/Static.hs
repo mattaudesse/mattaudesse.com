@@ -7,7 +7,6 @@ module Site.Static (build) where
 import Control.Monad.IO.Class     (liftIO)
 import Data.Aeson                 (ToJSON, toJSON)
 import Data.Foldable              (traverse_)
-import Data.Monoid                ((<>))
 import Data.String                (IsString)
 import Development.Shake          ((%>), (~>))
 import Development.Shake.FilePath ((</>), dropDirectory1)

@@ -5,7 +5,6 @@ module Site (dumpContacts, serve, siteApp) where
 
 import Control.Exception               (IOException, catch)
 import Control.Monad.Logger            (NoLoggingT(..))
-import Data.Monoid                     ((<>))
 import Data.Pool                       (Pool)
 import Data.Text                       (toLower, pack, unpack)
 import Data.Text.Encoding              (decodeUtf8, encodeUtf8)
@@ -18,7 +17,6 @@ import Network.Wai                     (ResponseReceived)
 import Network.Wai.Handler.Warp        (run)
 import Servant                         ((:<|>)(..), (:>))
 import Servant.Server.StaticFiles      (serveDirectoryWith)
-import System.IO                       (FilePath)
 import WaiAppStatic.Storage.Filesystem (defaultWebAppSettings)
 import WaiAppStatic.Types              (StaticSettings(..), unsafeToPiece)
 
