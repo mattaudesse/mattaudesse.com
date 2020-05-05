@@ -111,20 +111,12 @@ class Monad m => MonadUTC m where
   utcCurrentYear :: m String
 
 instance MonadUTC IO where
-  utcNow = getCurrentTime
-
-  utcCurrentYear = do
-    t <- utcNow
-    pure $ formatTime defaultTimeLocale "%Y" t
+  utcNow         = getCurrentTime
+  utcCurrentYear = utcNow >>= pure . formatTime defaultTimeLocale "%Y"
 
 instance MonadUTC m => MonadUTC (ExceptT ServerError m) where
-  utcNow = ExceptT $ do
-    n <- utcNow
-    pure $ Right n
-
-  utcCurrentYear = ExceptT $ do
-    cy <- utcCurrentYear
-    pure $ Right cy
+  utcNow         = ExceptT $ utcNow         >>= pure . Right
+  utcCurrentYear = ExceptT $ utcCurrentYear >>= pure . Right
 
 instance MonadUTC m => MonadUTC (AppT m) where
   utcNow         = AppT $ ReaderT (const utcNow)
