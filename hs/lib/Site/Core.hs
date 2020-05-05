@@ -96,17 +96,12 @@ instance MonadLog IO where
   crit = runStderrLoggingT . logErrorN
 
 instance MonadLog m => MonadLog (ExceptT ServerError m) where
-  info s = ExceptT $ do
-    info s
-    pure $ Right ()
-
-  crit s = ExceptT $ do
-    crit s
-    pure $ Right ()
+  info a = ExceptT $ info a >>= pure . Right
+  crit a = ExceptT $ crit a >>= pure . Right
 
 instance MonadLog m => MonadLog (AppT m) where
-  info s = AppT $ ReaderT (\_ -> info s)
-  crit s = AppT $ ReaderT (\_ -> crit s)
+  info a = AppT $ ReaderT (\_ -> info a)
+  crit a = AppT $ ReaderT (\_ -> crit a)
 
 
 --------------------------------------------------------------------------------
