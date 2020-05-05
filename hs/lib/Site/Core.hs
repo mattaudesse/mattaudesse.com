@@ -189,9 +189,7 @@ instance MonadAsync (AppT IO) where
   runAsync a = AppT $ ReaderT $ \conf ->
     liftIO $ async $ do
       r <- runExceptT $ runReaderT (runApp a) conf
-      case r of
-        Left  e  -> throw e
-        Right r' -> pure r'
+      either throw pure r
 
 -- | Await completion of a thread spawned by `runAsync`
 waitAppT :: MonadIO m => Async a -> m a
