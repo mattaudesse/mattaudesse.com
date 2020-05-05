@@ -81,19 +81,14 @@ instance MonadLog TestM where
 
 
 instance MonadUTC TestM where
-  utcNow = do
-    tell [Utc]
-    return dummyUtc
-
-  utcCurrentYear = do
-    t <- utcNow
-    pure $ formatTime defaultTimeLocale "%Y" t
+  utcNow         = tell [Utc] >>  pure dummyUtc
+  utcCurrentYear = utcNow     >>= pure . formatTime defaultTimeLocale "%Y"
 
 
 instance MonadSmtp TestM where
   sendEmail recipient subject body = do
     tell [Smtp recipient subject body]
-    return SmtpSendSuccess
+    pure SmtpSendSuccess
 
 
 instance MonadSmtp (AppT TestM) where
@@ -137,7 +132,7 @@ effectsFrom env =
 
 resultOf :: Env -> AppT TestM a -> IO (Either ServerError a)
 resultOf env =
-  let evalTestM (TestM w) = runWriterT w >>= return . fst
+  let evalTestM (TestM w) = runWriterT w >>= pure . fst
    in evalTestM . (runAppTestM env)
 
 
