@@ -226,3 +226,7 @@ contactHandler env = describe "POST /api/contact" $ do
     it "asynchronously stashes the message + associated metadata to database" $ do
       effs <- effectsFrom env (contact (Just localhost) joeTestMsgReq)
       effs `shouldContain` [Async [DbQuery]]
+
+    it "queries system clock for current UTC time" $ do
+      effs <- effectsFrom env (contact (Just localhost) joeTestMsgReq)
+      effs `shouldContain` [Utc]
