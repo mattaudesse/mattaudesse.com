@@ -1,4 +1,4 @@
-resolver: lts-15.11
+resolver: lts-16.11
 packages:
   - .
 
@@ -7,7 +7,6 @@ flags:
     NoUpperBounds: true
 
 extra-deps:
-  - hspec-wai-json-0.10.1@sha256:67b405c38f0a9e2771480c8d3ecd8aeb8d8776a35d3b2906cb1b76c9538617e4,1629
   - slick-1.0.1.1@sha256:bd27d2237126f8883b14c4a1e6c19b6640ed8dae5ba18e9eb8877c1ee23d5c1e,1307
 
   # HaskellNet
