@@ -1,5 +1,5 @@
 { "name":    "mattaudesse-com"
-, "set":     "psc-0.13.5"
+, "set":     "psc-0.13.8"
 , "source":  "https://github.com/purescript/package-sets.git"
 , "depends": [ "prelude"
              , "affjax"
