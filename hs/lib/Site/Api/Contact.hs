@@ -272,6 +272,9 @@ process vm = do
     SmtpSendFailedToAuthenticate ->
       crit "Failed to authenticate with mail server!"
 
+    SmtpProtoFailure ->
+      crit "Failed SMTPS protocol negotiation!"
+
     SmtpSendSuccess ->
       info ("Visitor message email sent for record ID: "
         <> (pack $ show $ fromSqlKey recordId))

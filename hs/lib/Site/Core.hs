@@ -27,7 +27,7 @@ module Site.Core
   ) where
 
 import Control.Concurrent.Async (Async, async, wait)
-import Control.Exception        (throw)
+import Control.Exception        (catch, throw)
 import Control.Monad.Except     (ExceptT(..), MonadError, throwError, runExceptT)
 import Control.Monad.IO.Class   (MonadIO(..))
 import Control.Monad.Logger     (logErrorN, logInfoN, runStderrLoggingT, runStdoutLoggingT)
@@ -39,6 +39,7 @@ import Data.Time.Clock          (UTCTime, getCurrentTime)
 import Data.Time.Format         (defaultTimeLocale, formatTime)
 import Database.Persist.Sql     (SqlPersistT, runSqlPool)
 import Database.Persist.Sqlite  (ConnectionPool)
+import GHC.IO.Exception         (IOException(..))
 import Network.HTTP.Types       (Header, hAccept, hContentType)
 import Servant                  (ServerError, errBody)
 
@@ -129,9 +130,7 @@ class MonadDB m where
   runDb :: SqlPersistT IO b -> m b
 
 instance MonadDB (AppT IO) where
-  runDb query = do
-    pool <- asks dbPool
-    liftIO $ runSqlPool query pool
+  runDb query = asks dbPool >>= liftIO . runSqlPool query
 
 
 --------------------------------------------------------------------------------
@@ -139,6 +138,7 @@ instance MonadDB (AppT IO) where
 data SmtpSendResult
   = SmtpSendSuccess
   | SmtpSendFailedToAuthenticate
+  | SmtpProtoFailure
 
 
 class Monad m => MonadSmtp m where
@@ -155,29 +155,32 @@ instance MonadSmtp (AppT IO) where
            , smtpSender
            } <- asks config
 
-    liftIO $ SMTP.doSMTPSTARTTLS smtpHostName $ \conn -> do
-      authed <- SMTP.authenticate
-        AUTH.LOGIN
-        smtpUserName
-        smtpPassword
-        conn
-
-      if not authed
-        then pure SmtpSendFailedToAuthenticate
-
-        else do
-          SMTP.sendPlainTextMail
-            (unpack recipient)
-            (unpack smtpSender)
-            (unpack subject)
-            (DTL.fromStrict body)
+    let process = SMTP.doSMTPSSL smtpHostName $ \conn -> do
+          authed <- SMTP.authenticate
+            AUTH.LOGIN
+            smtpUserName
+            smtpPassword
             conn
-          pure SmtpSendSuccess
+
+          if not authed
+            then pure SmtpSendFailedToAuthenticate
+
+            else do
+              SMTP.sendPlainTextMail
+                (unpack recipient)
+                (unpack smtpSender)
+                (unpack subject)
+                (DTL.fromStrict body)
+                conn
+              pure SmtpSendSuccess
+
+    liftIO $ process
+      `catch` \IOError {} -> pure SmtpProtoFailure
+
 
 instance MonadSmtp m => MonadSmtp (ExceptT ServerError m) where
-  sendEmail recipient subject body = ExceptT $ do
-    r <- sendEmail recipient subject body
-    pure $ Right r
+  sendEmail recipient subject body =
+    ExceptT $ Right <$> sendEmail recipient subject body
 
 
 --------------------------------------------------------------------------------
