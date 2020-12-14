@@ -1,5 +1,10 @@
 _base-dep: &base-dep base >=4.7 && <5
 
+# https://github.com/sol/hpack/issues/303#issuecomment-700905674
+_elide-paths:    &elide-paths
+  condition:     false
+  other-modules: Paths_mattaudesse_com_lib
+
 name:         mattaudesse-com-lib
 version:      0.1.0
 synopsis:     Matt Audesse's personal website
@@ -14,7 +19,6 @@ homepage:     https://mattaudesse.com
 ghc-options:  -Wall
 
 extra-source-files:
-  - Dockerfile
   - LICENSE
   - Makefile
   - README.md
@@ -26,6 +30,8 @@ extra-source-files:
 
 library:
   source-dirs: hs/lib
+  when:
+    - *elide-paths
   dependencies:
     - *base-dep
     - HaskellNet
@@ -61,9 +67,12 @@ executables:
   mattaudesse-com:
     main:         Main.hs
     source-dirs:  hs/app
+    when:
+      - *elide-paths
     dependencies:
       - *base-dep
       - mattaudesse-com-lib
+      - optparse-applicative
       - unix
     ghc-options:
       - -Wall
@@ -74,6 +83,8 @@ executables:
   mattaudesse-com-static:
     main:         BuildStatic.hs
     source-dirs:  hs/build-static
+    when:
+      - *elide-paths
     dependencies:
       - *base-dep
       - mattaudesse-com-lib
@@ -88,6 +99,8 @@ tests:
   spec:
     source-dirs: hs/test
     main:        Spec.hs
+    when:
+      - *elide-paths
     dependencies:
       - *base-dep
       - aeson

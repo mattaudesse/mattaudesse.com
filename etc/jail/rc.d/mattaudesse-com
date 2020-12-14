@@ -1,0 +1,42 @@
+#!/bin/sh
+
+# vi: filetype=sh
+# shellcheck disable=SC1094,SC2034
+
+# PROVIDE: mattaudesse-com
+# REQUIRE: DAEMON
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name=mattaudesse_com
+desc="Control mattaudesse.com web backend"
+rcvar=mattaudesse_com_enable
+procname=/usr/local/bin/mattaudesse-com
+pidfile=/var/run/mattaudesse-com.pid
+start_cmd=mattaudesse_com_start
+
+load_rc_config $name
+: "${mattaudesse_com_enable:=NO}"
+: "${mattaudesse_com_db:=''}"
+: "${mattaudesse_com_conf:=''}"
+: "${mattaudesse_com_user:=mattaudesse-com}"
+
+required_files="${mattaudesse_com_db} ${mattaudesse_com_conf}"
+
+
+mattaudesse_com_start () {
+  /usr/sbin/daemon \
+    -c \
+    -t mattaudesse-com \
+    -o /var/log/mattaudesse.com.log \
+    -p ${pidfile} \
+    -u ${mattaudesse_com_user} \
+    ${procname} \
+    serve \
+    --db   ${mattaudesse_com_db} \
+    --conf ${mattaudesse_com_conf}
+}
+
+
+run_rc_command "$1"

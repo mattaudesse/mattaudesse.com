@@ -1,7 +1,13 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE TypeOperators     #-}
 {-# LANGUAGE OverloadedStrings #-}
-module Site (dumpContacts, serve, siteApp) where
+module Site
+  ( ConfigPath
+  , SqlitePath
+  , dumpContacts
+  , serve
+  , siteApp
+  ) where
 
 import Control.Exception               (IOException, catch)
 import Control.Monad.Logger            (NoLoggingT(..))
@@ -20,6 +26,14 @@ import Servant.Server.StaticFiles      (serveDirectoryWith)
 import WaiAppStatic.Storage.Filesystem (defaultWebAppSettings)
 import WaiAppStatic.Types              (StaticSettings(..), unsafeToPiece)
 
+import System.IO
+  ( BufferMode(LineBuffering, NoBuffering)
+  , hSetBuffering
+  , stderr
+  , stdin
+  , stdout
+  )
+
 import qualified Data.ByteString as BS
 import qualified Data.Yaml       as Y
 import qualified Network.Wai     as N
@@ -34,10 +48,15 @@ import Site.Migrate     (migrateAll)
 
 --------------------------------------------------------------------------------
 
-dumpContacts :: IO ()
-dumpContacts = do
-  pool <- createPool
-  cs   <- runSqlPool visitorMsgsByCreationAsc pool
+type ConfigPath = FilePath
+type SqlitePath = FilePath
+
+
+--------------------------------------------------------------------------------
+
+dumpContacts :: SqlitePath -> IO ()
+dumpContacts db = do
+  cs <- createPool db >>= runSqlPool visitorMsgsByCreationAsc
 
   let msg c = pack ((take 50 $ repeat '-') ++ "\n")
            <> formattedWithRecordId (entityVal c) (entityKey c)
@@ -87,27 +106,27 @@ type Site = ("api" :> Api) :<|> S.Raw
 
 
 siteApp :: Env -> N.Application
-siteApp env =
-  S.serve proxy (apiServerFrom env :<|> distRaw)
-
-  where distRaw = serveDirectoryWith staticWebAppSettings
-        proxy   :: S.Proxy Site
-        proxy   =  S.Proxy
+siteApp env = S.serve (S.Proxy :: S.Proxy Site)
+     $ apiServerFrom      env
+  :<|> serveDirectoryWith staticWebAppSettings
 
 
-createPool :: IO (Pool SqlBackend)
-createPool = runNoLoggingT $ createSqlitePool "mattaudesse.com.db" 8
+createPool :: SqlitePath -> IO (Pool SqlBackend)
+createPool db = runNoLoggingT $ createSqlitePool (pack db) 8
 
 
-serve :: IO ()
-serve = do
-  confRaw <- BS.readFile "mattaudesse.com.yaml"
-  conf    <- Y.decodeThrow confRaw
-  pool    <- createPool
+serve :: SqlitePath -> ConfigPath -> IO ()
+serve db conf = do
+  hSetBuffering stdin  NoBuffering
+  hSetBuffering stdout LineBuffering
+  hSetBuffering stderr LineBuffering
+
+  conf' <- BS.readFile conf >>= Y.decodeThrow
+  pool  <- createPool db
   runSqlPool (runMigration migrateAll) pool
 
-  let env = Env pool conf
+  let env = Env pool conf'
 
-  info . pack $ "Launching site on port: " ++ show (port conf)
+  info . pack $ "Launching site on port: " ++ show (port conf')
 
-  run (port conf) (siteApp env)
+  run (port conf') (siteApp env)

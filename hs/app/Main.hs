@@ -1,27 +1,55 @@
-module Main where
+module Main (main) where
 
-import Data.List            (intercalate)
-import System.Environment   (getArgs)
-import System.Exit          (ExitCode(ExitFailure))
-import System.Posix.Process (exitImmediately)
-import Site                 (dumpContacts, serve)
+import Control.Monad (join)
+
+import Options.Applicative
+  ( CommandFields
+  , Mod
+  , Parser
+  , (<**>)
+  , action
+  , command
+  , execParser
+  , footer
+  , fullDesc
+  , helper
+  , hsubparser
+  , info
+  , long
+  , metavar
+  , option
+  , str
+  )
+
+import Site (ConfigPath, SqlitePath, dumpContacts, serve)
 
 
-printHelpAndExit :: IO ()
-printHelpAndExit = do
-  let msg = [ "Invalid argument; must be one of:"
-            , "* serve"
-            , "* dump-contacts"
-            ]
+sqlitePath :: Parser SqlitePath
+sqlitePath = option str
+  $ long    "db"
+ <> metavar "SQLite database path"
+ <> action  "file"
 
-  putStrLn $ intercalate "\n" msg
-  exitImmediately $ ExitFailure 1
+
+configPath :: Parser ConfigPath
+configPath = option str
+  $ long    "conf"
+ <> metavar "config YAML path"
+ <> action  "file"
+
+
+dumpContacts' :: Mod CommandFields (IO ())
+dumpContacts' = command "dump-contacts"
+  $ info (dumpContacts <$> sqlitePath) mempty
+
+
+serve' :: Mod CommandFields (IO ())
+serve' = command "serve"
+  $ info (serve <$> sqlitePath <*> configPath) mempty
 
 
 main :: IO ()
-main = do
-  args <- getArgs
-  case args of
-    ["serve"]         -> serve
-    ["dump-contacts"] -> dumpContacts
-    _                 -> printHelpAndExit
+main = join . execParser
+  $ info ((hsubparser $ dumpContacts' <> serve') <**> helper)
+  $ fullDesc
+ <> footer "https://mattaudesse.com"

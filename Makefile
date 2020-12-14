@@ -1,13 +1,14 @@
-.default_goal := build
-.phony: build-hs test-hs repl-hs watch-hs
-.phony: build-ps test-ps repl-ps watch-ps deps-ps
-.phony: build-static build clean deployable deploy
-.phony: serve dump-contacts todo backup-db
+.DEFAULT_GOAL := build
+.PHONY: build-hs test-hs repl-hs watch-hs
+.PHONY: build-ps test-ps repl-ps watch-ps deps-ps
+.PHONY: build-static build clean cert-renew
+.PHONY: deployable do-rsync-deploy deploy-stage deploy-cloud
+.PHONY: serve dump-contacts todo backup-db
 
 
 ### Haskell ####################################################################
 build-hs:
-	@stack build --pedantic --test --no-run-tests --jobs 6
+	@stack build --pedantic --test --no-run-tests
 
 test-hs: build-hs
 	@stack test
@@ -32,7 +33,8 @@ deps-ps:
 $(PS_BUNDLE_DIR):
 	@mkdir -p $(PS_BUNDLE_DIR)
 
-build-ps: $(PS_BUNDLE_DIR) deps-ps
+$(PS_BUNDLE_DIST): $(PS_BUNDLE_DIR) $(shell find ./ps -type f) ./psc-package.json ./Makefile
+	@$(MAKE) -s deps-ps
 	@pulp \
 	  --psc-package \
 	  build \
@@ -44,6 +46,8 @@ build-ps: $(PS_BUNDLE_DIR) deps-ps
 	  | closure-compiler \
 	  --compilation_level SIMPLE \
 	  --js_output_file $(PS_BUNDLE_DIST)
+
+build-ps: $(PS_BUNDLE_DIST)
 
 test-ps: deps-ps
 	@pulp \
@@ -84,32 +88,53 @@ clean:
 	@[ -d $(PS_BUILD_DIR) ] && rm -r $(PS_BUILD_DIR) || true
 	@[ -d ./dist          ] && rm -r ./dist          || true
 
-DOCKER_CONTAINER_ID = `docker container ls --all --latest --quiet`
-DOCKER_WORK_DIR     = `docker run mattaudesse-com-centos pwd`
-DOCKER_EXE_RELPATH  = `docker run mattaudesse-com-centos find .stack-work/dist -name mattaudesse-com -type f`
-LINUX_BINARY_PATH   = .mattaudesse-com-centos
-UID_AND_HOST        = mattaudesse@mattaudesse.com
-LIVE_APP_PATH       = $(UID_AND_HOST):/home/mattaudesse/webapps/mattaudesse_com
-RSYNC               = rsync -vzhr --progress
+SITE_FQDN  = mattaudesse.com
+TLS_DIR    = ~/.config/letsencrypt/conf/live/$(SITE_FQDN)
+SITE_ROOT  = /usr/local/jail/nginx/site/$(SITE_FQDN)
+RSYNC      = rsync -vzhr --progress --perms
+CLOUD      = matt@$(SITE_FQDN)
+CLOUD_ROOT = $(CLOUD):$(SITE_ROOT)
+BINARY     = $(shell stack path --local-install-root)/bin/mattaudesse-com
+
+cert-renew:
+	@certbot certonly \
+	  --manual \
+	  --preferred-challenges dns \
+	  -d $(SITE_FQDN)
 
 deployable: build test-hs test-ps
-	@docker build -t mattaudesse-com-centos .
-	@docker container create mattaudesse-com-centos >/dev/null
-	@docker cp \
-	  $(DOCKER_CONTAINER_ID):$(DOCKER_WORK_DIR)/$(DOCKER_EXE_RELPATH) \
-	  $(LINUX_BINARY_PATH)
-	@echo A new centos binary has been stashed to $(LINUX_BINARY_PATH)
+	@sudo BINARY=$(BINARY) sh/jail-new.sh
 
-deploy: deployable
-	@$(RSYNC) --inplace dist supervisor.ini $(LIVE_APP_PATH)
-	@$(RSYNC) $(LINUX_BINARY_PATH) $(LIVE_APP_PATH)/mattaudesse.com
-	@ssh $(UID_AND_HOST) 'supervisorctl restart mattaudesse.com'
+./etc/dhparam:
+	@openssl dhparam -out ./etc/dhparam 4096
+
+do-rsync-deploy: ./etc/dhparam
+	@$(RSYNC) --mkpath --chmod=F0644 ./dist/                  $(ROOT)/static/
+	@$(RSYNC) --mkpath --chmod=F0600 ./etc/nginx.conf         $(ROOT)/conf/
+	@$(RSYNC) --mkpath --chmod=F0600 ./etc/dhparam            $(ROOT)/conf/
+	@$(RSYNC) -L       --chmod=F0600 $(TLS_DIR)/chain.pem     $(ROOT)/conf/trusted
+	@$(RSYNC) -L       --chmod=F0600 $(TLS_DIR)/fullchain.pem $(ROOT)/conf/rsa.crt
+	@$(RSYNC) -L       --chmod=F0600 $(TLS_DIR)/privkey.pem   $(ROOT)/conf/rsa.key
+
+deploy-stage:
+	@$(MAKE) -s ROOT=$(SITE_ROOT) do-rsync-deploy
+	@chmod 0700 $(SITE_ROOT)/conf
+	@sudo bastille restart mattaudesse-com
+	@sudo service -j nginx nginx reload
+
+deploy-cloud:
+	@sh/jail-deploy-cloud.sh
+	@$(MAKE) -s ROOT=$(CLOUD_ROOT) do-rsync-deploy
+	@ssh    $(CLOUD) 'chmod 0700 $(SITE_ROOT)/conf'
+	@ssh -t $(CLOUD) 'sudo service -j nginx nginx reload'
 
 serve: build
-	@stack exec -- mattaudesse-com serve
+	@stack exec -- mattaudesse-com serve \
+	  --db   ./mattaudesse.com.db \
+	  --conf ./mattaudesse.com.yaml
 
 dump-contacts: build-hs
-	@stack exec -- mattaudesse-com dump-contacts
+	@stack exec -- mattaudesse-com dump-contacts --db ./mattaudesse.com.db
 
 todo:
 	@ag -i --ignore Makefile todo . || echo "No TODOs left!"
@@ -118,5 +143,5 @@ backup-db: BACKUP-DB-DIR=.db-backup/`date -u +"%Y"`/`date -u +"%m"`
 backup-db:
 	@mkdir -p $(BACKUP-DB-DIR)
 	@$(RSYNC) \
-	  $(LIVE_APP_PATH)/mattaudesse.com.db \
+	  $(CLOUD):/usr/local/jail/mattaudesse-com/db/mattaudesse.com.db \
 	  $(BACKUP-DB-DIR)/`date -u +"%Y-%m-%d-%H-%M"`-mattaudesse.com.db
