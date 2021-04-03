@@ -13,17 +13,19 @@ module Site.Api.Contact
   ) where
 
 import Prelude
+
 import Affjax.StatusCode         (StatusCode(..))
 import Data.Array                (length, filter, (!!))
 import Data.Array.NonEmpty       (NonEmptyArray)
 import Data.Bifunctor            (bimap)
-import Data.Char.Unicode         (isSpace)
+import Data.CodePoint.Unicode    (isSpace)
 import Data.Const                (Const)
 import Data.Either               (Either(..), isLeft, isRight)
 import Data.Foldable             (all)
 import Data.Generic.Rep          (class Generic)
-import Data.Generic.Rep.Show     (genericShow)
 import Data.Maybe                (Maybe(..), maybe)
+import Data.Show.Generic         (genericShow)
+import Data.String.CodePoints    (codePointFromChar)
 import Data.String.CodeUnits     (toCharArray)
 import Data.Validation.Semigroup (V, invalid, toEither)
 import Effect.Aff                (Aff)
@@ -91,7 +93,7 @@ missingLastName n
 
 invalidEmailWhitespace :: ValidatorOf Email
 invalidEmailWhitespace e =
-  let ws = filter isSpace $ toCharArray e
+  let ws = filter (isSpace <<< codePointFromChar) $ toCharArray e
    in if length ws > 0 then invalid $ pure InvalidEmailWhitespace
                        else pure e
 
@@ -212,14 +214,14 @@ handleAction = case _ of
     when valid $ do
       H.modify_ (_ { sending = true })
 
-      res <- H.liftAff $ HTTP.postJson "/api/contact" req
+      res <- H.liftAff $ HTTP.post_ "/api/contact" req
 
       case res of
         Left err ->
           H.liftEffect $ error (msgPrefix <> AX.printError err)
 
-        Right { status: StatusCode sc } -> do
-          H.liftEffect $ info (msgPrefix <> "HTTP " <> show sc)
+        Right { status: { code: StatusCode code, text }} -> do
+          H.liftEffect $ info (msgPrefix <> "HTTP " <> show code <> " " <> text)
           H.modify_ (_ { sending = false, sent = true })
 
 
@@ -254,16 +256,16 @@ renderForm s = HH.div_
            [ offsetCol 2
            , HH.div [ HP.class_   (HH.ClassName "col-8") ]
                     [ HH.textarea [ HP.name         "comment-body"
-                                  , HP.id_          "comment-body"
+                                  , HP.id           "comment-body"
                                   , HP.required     true
-                                  , HE.onValueInput $ Just <<< UpdateCommentBody
+                                  , HE.onValueInput UpdateCommentBody
                                   ]]]
 
   , HH.div [ HP.class_ (HH.ClassName "row") ]
            [ offsetCol 5
            , HH.div [ HP.class_ (HH.ClassName "col-2") ]
-                    [ HH.a [ HE.onClick \_ -> Just SubmitVisitorMessage
-                           , HP.id_     "btn-send"
+                    [ HH.a [ HE.onClick \_ -> SubmitVisitorMessage
+                           , HP.id      "btn-send"
                            , HP.classes sendButtonClasses
                            ]
                            [ HH.text "Send" ]]]
@@ -283,11 +285,11 @@ renderForm s = HH.div_
 
   mkInput required type_ elName label val trigger extraProps =
       let inputProps = [ HP.name     elName
-                       , HP.id_      elName
+                       , HP.id       elName
                        , HP.value    val
                        , HP.type_    type_
                        , HP.required required
-                       , HE.onValueInput $ Just <<< trigger
+                       , HE.onValueInput trigger
                        ] <> extraProps
 
           labelCol  = HH.div [ HP.classes [ HH.ClassName "col-3"
@@ -349,7 +351,7 @@ render s
 
 --------------------------------------------------------------------------------
 
-contactForm :: H.Component HH.HTML (Const Void) Unit Void Aff
+contactForm :: H.Component (Const Void) Unit Void Aff
 contactForm =  H.mkComponent
   { render
   , eval:         H.mkEval $ H.defaultEval { handleAction = handleAction }
