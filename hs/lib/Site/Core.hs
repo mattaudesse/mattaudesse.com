@@ -34,18 +34,18 @@ import Control.Monad.Logger     (logErrorN, logInfoN, runStderrLoggingT, runStdo
 import Control.Monad.Reader     (MonadReader, ReaderT(..), asks)
 import Data.Aeson               (ToJSON, encode, defaultOptions)
 import Data.Aeson.TH            (deriveJSON)
-import Data.Text                (Text, unpack)
+import Data.Text                (Text)
 import Data.Time.Clock          (UTCTime, getCurrentTime)
 import Data.Time.Format         (defaultTimeLocale, formatTime)
 import Database.Persist.Sql     (SqlPersistT, runSqlPool)
 import Database.Persist.Sqlite  (ConnectionPool)
 import GHC.IO.Exception         (IOException(..))
 import Network.HTTP.Types       (Header, hAccept, hContentType)
+import Network.Mail.Mime        (plainPart)
 import Servant                  (ServerError, errBody)
 
-import qualified Data.Text.Lazy              as DTL
-import qualified Network.HaskellNet.Auth     as AUTH
-import qualified Network.HaskellNet.SMTP.SSL as SMTP
+import qualified Data.Text.Lazy    as DTL
+import qualified Network.Mail.SMTP as SMTP
 
 
 --------------------------------------------------------------------------------
@@ -61,8 +61,8 @@ type VisitorIpAddr  = Text
 data Config = Config
   { port         :: Int
   , smtpHostName :: SmtpHostName
-  , smtpUserName :: AUTH.UserName
-  , smtpPassword :: AUTH.Password
+  , smtpUserName :: SMTP.UserName
+  , smtpPassword :: SMTP.Password
   , smtpSender   :: EmailSender
   } deriving (Eq, Show)
 
@@ -137,7 +137,6 @@ instance MonadDB (AppT IO) where
 
 data SmtpSendResult
   = SmtpSendSuccess
-  | SmtpSendFailedToAuthenticate
   | SmtpProtoFailure
 
 
@@ -149,32 +148,21 @@ class Monad m => MonadSmtp m where
 
 instance MonadSmtp (AppT IO) where
   sendEmail recipient subject body = do
-    Config { smtpHostName
-           , smtpUserName
-           , smtpPassword
-           , smtpSender
-           } <- asks config
-
-    let process = SMTP.doSMTPSSL smtpHostName $ \conn -> do
-          authed <- SMTP.authenticate
-            AUTH.LOGIN
+    Config {..} <- asks config
+    let addr = SMTP.Address Nothing
+        proc = SMTP.sendMailWithLoginTLS
+            smtpHostName
             smtpUserName
             smtpPassword
-            conn
+          $ SMTP.simpleMail
+            ( addr smtpSender )
+            [ addr recipient  ]
+            [] -- CC
+            [] -- BCC
+            subject
+            [ plainPart $ DTL.fromStrict body ]
 
-          if not authed
-            then pure SmtpSendFailedToAuthenticate
-
-            else do
-              SMTP.sendPlainTextMail
-                (unpack recipient)
-                (unpack smtpSender)
-                (unpack subject)
-                (DTL.fromStrict body)
-                conn
-              pure SmtpSendSuccess
-
-    liftIO $ process
+    liftIO $ (proc >> pure SmtpSendSuccess)
       `catch` \IOError {} -> pure SmtpProtoFailure
 
 

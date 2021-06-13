@@ -14,14 +14,15 @@ import Site.Core  (Env)
 import Site.Spam  (spamEmails, spamIps)
 import SpecCommon (SideEffect(..), dummyUtc, localhost, effectsFrom, resultOf)
 
-import Site.Api.Contact ( VisitorMsgRequest(..)
-                        , VisitorMsgInvalid(..)
-                        , VisitorMsgResponse(..)
-                        , VisitorMsg
-                        , VisitorIpAddr
-                        , contact
-                        , mkVisitorMsg
-                        )
+import Site.Api.Contact
+  ( VisitorMsgRequest(..)
+  , VisitorMsgInvalid(..)
+  , VisitorMsgResponse(..)
+  , VisitorMsg
+  , VisitorIpAddr
+  , contact
+  , mkVisitorMsg
+  )
 
 
 --------------------------------------------------------------------------------
@@ -208,7 +209,7 @@ contactHandler env = describe "POST /api/contact" $ do
                            said:
 
                            hi
-                          |] <> (pack "\n")
+                          |] <> (pack "\n\n")
 
     it "logs the message + associated metadata" $ do
       effs <- effectsFrom env (contact (Just localhost) joeTestMsgReq)

@@ -11,31 +11,9 @@ packages:
       sha256: dbea944bf224db953522e5c95142920aad976610e1d7434b7e71963670329ec3
   original:
     hackage: slick-1.0.1.1@sha256:bd27d2237126f8883b14c4a1e6c19b6640ed8dae5ba18e9eb8877c1ee23d5c1e,1307
-- completed:
-    name: HaskellNet
-    version: 0.5.1
-    git: https://github.com/jtdaugherty/HaskellNet.git
-    pantry-tree:
-      size: 4011
-      sha256: 921b437ef18ccb04f889301c407263d6b5b72c5864803a000b1e61328988ce70
-    commit: 5aa1f3b009253b02c4822005ac59ee208a10a347
-  original:
-    git: https://github.com/jtdaugherty/HaskellNet.git
-    commit: 5aa1f3b009253b02c4822005ac59ee208a10a347
-- completed:
-    name: HaskellNet-SSL
-    version: 0.3.4.1
-    git: https://github.com/mattaudesse/HaskellNet-SSL.git
-    pantry-tree:
-      size: 841
-      sha256: c0b0e8af4afce8670b9ccc6656912808b0e2771685d9a5e8e8426ac849cf21bc
-    commit: 9a7a957f25c7586e9aa9e5202b59f1217380f299
-  original:
-    git: https://github.com/mattaudesse/HaskellNet-SSL.git
-    commit: 9a7a957f25c7586e9aa9e5202b59f1217380f299
 snapshots:
 - completed:
-    size: 533913
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/16/30.yaml
-    sha256: 3ef84db274d6ec27f49fa611f0afdb347ff9e70cb7c861c93d11c6cdc33827f4
-  original: lts-16.30
+    size: 567679
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/17/15.yaml
+    sha256: 72e87841a0ab5b72f6f018e8ee692fd972b7bb32a944990f028e10d6eb528e63
+  original: lts-17.15

@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DerivingStrategies         #-}
 {-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GADTs                      #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE MultiParamTypeClasses      #-}
@@ -269,9 +270,6 @@ process vm = do
   smtpResult <- waitAppT emailed
 
   case smtpResult of
-    SmtpSendFailedToAuthenticate ->
-      crit "Failed to authenticate with mail server!"
-
     SmtpProtoFailure ->
       crit "Failed SMTPS protocol negotiation!"
 

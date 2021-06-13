@@ -34,14 +34,13 @@ library:
     - *elide-paths
   dependencies:
     - *base-dep
-    - HaskellNet
-    - HaskellNet-SSL
     - aeson
     - async
     - bytestring
     - clay
     - conduit
     - http-types
+    - mime-mail
     - monad-logger
     - mtl
     - mustache
@@ -55,6 +54,7 @@ library:
     - servant-server
     - shake
     - slick
+    - smtp-mail
     - text
     - time
     - validation
@@ -103,6 +103,7 @@ tests:
       - *elide-paths
     dependencies:
       - *base-dep
+      - mattaudesse-com-lib
       - aeson
       - async
       - bytestring
@@ -111,7 +112,6 @@ tests:
       - hspec-wai
       - hspec-wai-json
       - http-types
-      - mattaudesse-com-lib
       - monad-logger
       - mtl
       - neat-interpolation
