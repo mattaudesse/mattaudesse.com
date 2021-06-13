@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := build
 .PHONY: build-hs test-hs repl-hs watch-hs
 .PHONY: build-ps test-ps repl-ps watch-ps deps-ps
-.PHONY: build-static build clean cert-renew
+.PHONY: build-static build clean cert-renew dns-acme
 .PHONY: deployable do-rsync-deploy deploy-stage deploy-cloud
 .PHONY: serve dump-contacts todo backup-db
 
@@ -101,6 +101,9 @@ cert-renew:
 	  --manual \
 	  --preferred-challenges dns \
 	  -d $(SITE_FQDN)
+
+dns-acme:
+	@dig @1.1.1.1 +short TXT _acme-challenge.$(SITE_FQDN)
 
 deployable: build test-hs test-ps
 	@sudo BINARY=$(BINARY) sh/jail-new.sh
