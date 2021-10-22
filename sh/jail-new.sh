@@ -94,7 +94,7 @@ main () {
   chmod -R 0555 "$JAIL_PATH"/root/usr/local/bin
   chmod -R 0555 "$JAIL_PATH"/root/usr/local/etc/rc.d
 
-  bastille export "$JAIL_NAME"
+  bastille export --xz "$JAIL_NAME"
   echo
 }
 
