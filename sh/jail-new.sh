@@ -43,7 +43,7 @@ main () {
   is-active && await-stop
 
   bastille destroy "$JAIL_NAME" || true
-  bastille create  "$JAIL_NAME" 12.2-RELEASE 10.10.10.1 lo1
+  bastille create  "$JAIL_NAME" 13.0-RELEASE 10.10.10.1 lo1
   bastille start   "$JAIL_NAME"
 
   pkg -j "$JAIL_NAME" install -y libiconv libffi gmp ca_root_nss
