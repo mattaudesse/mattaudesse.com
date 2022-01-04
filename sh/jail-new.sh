@@ -9,6 +9,8 @@ TMPLS_DIR="$BROOT/templates/mattaudesse"
 TMPL_SYMLINK="$TMPLS_DIR/mattaudesse.com"
 PROJ_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. >/dev/null 2>&1 && pwd)"
 
+# https://github.com/BastilleBSD/bastille/commit/87944a0f#diff-07631da93eece7aba2e6b0df6c43116153b7a9141bd7b4b77faeacf1667512a2R79
+RESYS="$(sysrc -nq bastille_list | grep $JAIL_NAME -q; echo $?)"
 
 is-active () {
   [ "$(jls -d name | awk "/^$JAIL_NAME$/")" ]
@@ -45,6 +47,12 @@ main () {
   bastille destroy "$JAIL_NAME" || true
   bastille create  "$JAIL_NAME" 13.0-RELEASE 10.10.10.1 lo1
   bastille start   "$JAIL_NAME"
+
+  if [ "$RESYS" = '0' ]; then
+    sysrc bastille_list+="$JAIL_NAME"
+    echo "Jail: \"$JAIL_NAME\" re-enabled in /etc/rc.conf."
+    echo
+  fi
 
   pkg -j "$JAIL_NAME" install -y libiconv libffi gmp ca_root_nss
 
