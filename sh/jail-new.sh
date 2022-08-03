@@ -45,7 +45,7 @@ main () {
   is-active && await-stop
 
   bastille destroy "$JAIL_NAME" || true
-  bastille create  "$JAIL_NAME" 13.0-RELEASE 10.10.10.1 lo1
+  bastille create  "$JAIL_NAME" 13.1-RELEASE 10.10.10.1 lo1
   bastille start   "$JAIL_NAME"
 
   if [ "$RESYS" = '0' ]; then
