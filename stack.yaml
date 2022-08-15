@@ -1,3 +1,11 @@
-resolver: lts-18.28
+resolver:   lts-19.19
+
+extra-deps:
+- git:      https://github.com/mattaudesse/mustache.git
+  commit:   461c8f0bdb90934dcf5e1916aa4a6753ea97f07d
+
+- git:      https://github.com/mattaudesse/Slick.git
+  commit:   5a4019331e60966793ffb7940fca58105890477e
+
 packages:
-  - .
+- .

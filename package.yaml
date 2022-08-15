@@ -43,7 +43,6 @@ library:
     - mime-mail
     - monad-logger
     - mtl
-    - mustache
     - pandoc
     - persistent
     - persistent-sqlite
@@ -110,7 +109,6 @@ tests:
       - case-insensitive
       - hspec
       - hspec-wai
-      - hspec-wai-json
       - http-types
       - monad-logger
       - mtl

@@ -301,7 +301,7 @@ controlWidgets =  do
 
   let mkBtn (suffix, bcol, hcol) = element ("a.btn-" <> suffix) ? do
         background     bcol
-        borderTop      solid (px 1) bcol
+        borderTop      (px 1) solid bcol
         boxShadowWith  12 dustyGrayBlue
         color          white
         display        block
@@ -319,7 +319,7 @@ controlWidgets =  do
 
         ".disabled" & do
           background disabledGray
-          borderTop  solid (px 1) disabledGray
+          borderTop  (px 1) solid disabledGray
           active     & background disabledGray
           hover      & background disabledGray
 

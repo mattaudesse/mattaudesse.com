@@ -3,10 +3,32 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    name: mustache
+    version: 2.4.0
+    git: https://github.com/mattaudesse/mustache.git
+    pantry-tree:
+      size: 1659
+      sha256: 002b9a25b05d09fde363c6ed4b3629ef07c745a8654416a4be0217e67996c3c0
+    commit: 461c8f0bdb90934dcf5e1916aa4a6753ea97f07d
+  original:
+    git: https://github.com/mattaudesse/mustache.git
+    commit: 461c8f0bdb90934dcf5e1916aa4a6753ea97f07d
+- completed:
+    name: slick
+    version: 1.1.2.2
+    git: https://github.com/mattaudesse/Slick.git
+    pantry-tree:
+      size: 881
+      sha256: 786a946cbe611e77620a492152aa049e55e7541525fa892555e581d781547751
+    commit: 5a4019331e60966793ffb7940fca58105890477e
+  original:
+    git: https://github.com/mattaudesse/Slick.git
+    commit: 5a4019331e60966793ffb7940fca58105890477e
 snapshots:
 - completed:
-    size: 590100
-    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/18/28.yaml
-    sha256: 428ec8d5ce932190d3cbe266b9eb3c175cd81e984babf876b64019e2cbe4ea68
-  original: lts-18.28
+    size: 619170
+    url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/19/19.yaml
+    sha256: a95a93bcb7132bf5f8ad3356998e223947852f57d4da63e0e145870ea90d9d18
+  original: lts-19.19
