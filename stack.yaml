@@ -1,4 +1,4 @@
-resolver:   lts-19.25
+resolver:   lts-19.27
 
 extra-deps:
 - git:      https://github.com/mattaudesse/mustache.git
