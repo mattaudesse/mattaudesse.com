@@ -1,11 +1,7 @@
-resolver:   lts-19.33
+resolver: lts-22.43
 
 extra-deps:
-- git:      https://github.com/mattaudesse/mustache.git
-  commit:   461c8f0bdb90934dcf5e1916aa4a6753ea97f07d
-
-- git:      https://github.com/mattaudesse/Slick.git
-  commit:   5a4019331e60966793ffb7940fca58105890477e
+- smtp-mail-0.5.0.0@sha256:e379788a4e649fa0c3233774501a103bc8c87f789ff4425c5282e4939fcc4b56
 
 packages:
 - .
