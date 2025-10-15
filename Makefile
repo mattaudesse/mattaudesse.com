@@ -4,6 +4,7 @@
 .PHONY: build-static build clean cert-renew dns-acme
 .PHONY: deployable do-rsync-deploy deploy-stage deploy-cloud
 .PHONY: serve dump-contacts todo backup-db
+.PHONY: static/matt-audesse-git.asc
 
 
 ### Haskell ####################################################################
@@ -78,7 +79,11 @@ watch-ps: deps-ps
 
 
 ### Common #####################################################################
-build-static: build-hs
+static/matt-audesse-git.asc:
+	@gpg -a --export --export-options export-minimal 86E20EE655531286 \
+	  tee $@ | gpg -v --show-keys
+
+build-static: build-hs static/matt-audesse-git.asc
 	@stack exec -- mattaudesse-com-static site
 
 build: build-static build-ps
