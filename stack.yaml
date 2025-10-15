@@ -1,4 +1,4 @@
-resolver: lts-22.43
+resolver: lts-22.44
 
 extra-deps:
 - smtp-mail-0.5.0.0@sha256:e379788a4e649fa0c3233774501a103bc8c87f789ff4425c5282e4939fcc4b56
