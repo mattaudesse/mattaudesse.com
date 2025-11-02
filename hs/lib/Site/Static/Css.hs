@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE UnicodeSyntax     #-}
 module Site.Static.Css (css) where
 
 import Prelude hiding (div, rem, span)
@@ -13,79 +14,78 @@ import qualified Clay.Media as M
 
 --------------------------------------------------------------------------------
 
-darkAndDusty :: Color
-darkAndDusty =  "#1a1a1a"
+darkAndDusty ∷ Color
+darkAndDusty = "#1a1a1a"
 
-darkAndDustyInputBackground :: Color
-darkAndDustyInputBackground =  "#232729"
+darkAndDustyInputBackground ∷ Color
+darkAndDustyInputBackground = "#232729"
 
-disabledGray :: Color
-disabledGray =  "#9c9c9c"
+disabledGray ∷ Color
+disabledGray = "#9c9c9c"
 
-inputBorder :: Color
-inputBorder =  "#33393b"
+inputBorder ∷ Color
+inputBorder = "#33393b"
 
-dustyGrayBlue :: Color
-dustyGrayBlue =  "#374553"
+dustyGrayBlue ∷ Color
+dustyGrayBlue = "#374553"
 
-comfortableText :: Color
-comfortableText =  "#ddd"
+comfortableText ∷ Color
+comfortableText = "#ddd"
 
-comfortableTextWithEmphasis :: Color
-comfortableTextWithEmphasis =  "#ccc"
+comfortableTextWithEmphasis ∷ Color
+comfortableTextWithEmphasis = "#ccc"
 
-niceBlue :: Color
-niceBlue =  "#7390ba"
+niceBlue ∷ Color
+niceBlue = "#7390ba"
 
-niceBlueHover :: Color
-niceBlueHover =  "#3e6cae"
+niceBlueHover ∷ Color
+niceBlueHover = "#3e6cae"
 
-niceGreen :: Color
-niceGreen =  "#30573c"
+niceGreen ∷ Color
+niceGreen = "#30573c"
 
-niceGreenHover :: Color
-niceGreenHover =  "#284a31"
+niceGreenHover ∷ Color
+niceGreenHover = "#284a31"
 
-niceYellow :: Color
-niceYellow =  "#e39b40"
+niceYellow ∷ Color
+niceYellow = "#e39b40"
 
-niceYellowHover :: Color
-niceYellowHover =  "#c87f23"
+niceYellowHover ∷ Color
+niceYellowHover = "#c87f23"
 
-borderRadius2px :: Css
-borderRadius2px =  borderRadius (px 2) (px 2) (px 2) (px 2)
+borderRadius2px ∷ Css
+borderRadius2px = borderRadius (px 2) (px 2) (px 2) (px 2)
 
 
 --------------------------------------------------------------------------------
 
-boxShadowWith :: Double -> Color -> Css
+boxShadowWith ∷ Double → Color → Css
 boxShadowWith blurRadius c =
   boxShadow $ (bsColor c $ shadowWithBlur (px 0) (px 0) (px blurRadius)) :| []
 
 
 --------------------------------------------------------------------------------
 
-_tintOf :: Color -> Css
-_tintOf clr =
-  before & do
-    content    $ stringContent ""
-    display    block
-    position   absolute
-    top        (px 0)
-    bottom     (px 0)
-    left       (px 0)
-    right      (px 0)
-    background $ setA 0.5 clr
-    transition "all" (sec 0.2) linear (sec 0)
+_tintOf ∷ Color → Css
+_tintOf clr = before & do
+  content    $ stringContent ""
+  display    block
+  position   absolute
+  top        (px 0)
+  bottom     (px 0)
+  left       (px 0)
+  right      (px 0)
+  background $ setA 0.5 clr
+  transition "all" (sec 0.2) linear (sec 0)
 
-    hover & do
-      background $ setA 0 clr
+  hover & do
+    background $ setA 0 clr
 
 
 --------------------------------------------------------------------------------
 
-toplevel :: Css
-toplevel =  do
+toplevel ∷ Css
+toplevel = do
   (html <> body) ? do
     height          (pct 100)
     width           (pct 100)
@@ -104,8 +104,8 @@ toplevel =  do
 
 --------------------------------------------------------------------------------
 
-topnav :: Css
-topnav =  "#topnav" ? do
+topnav ∷ Css
+topnav = "#topnav" ? do
   a ? do
     color transparent
     hover & color transparent
@@ -114,16 +114,16 @@ topnav =  "#topnav" ? do
 
 --------------------------------------------------------------------------------
 
-typography :: Css
-typography =  do
+typography ∷ Css
+typography = do
   star ? do
-    fontFamily    ["Droid Sans", "Tahoma", "Arial"] [sansSerif]
+    fontFamily    ["Tahoma", "Arial"] [sansSerif]
     textRendering optimizeLegibility
     color         comfortableText
     lineHeight    (em 1.5)
 
-  (h1 <> h2 <> h3 <> h4 <> h5) ?
-    color comfortableTextWithEmphasis
+  (h1 <> h2 <> h3 <> h4 <> h5)
+    ? color comfortableTextWithEmphasis
 
   h1 ? fontSize (rem 2.000)
   h2 ? fontSize (rem 1.375)
@@ -159,8 +159,8 @@ typography =  do
 
 --------------------------------------------------------------------------------
 
-pageContainer :: Css
-pageContainer =  do
+pageContainer ∷ Css
+pageContainer = do
   "#page-container" ? do
     minHeight (pct 100)
     position  relative
@@ -196,8 +196,8 @@ pageContainer =  do
 
 --------------------------------------------------------------------------------
 
-gridSystem :: Css
-gridSystem =  do
+gridSystem ∷ Css
+gridSystem = do
   -- Based loosely on https://github.com/zachacole/Simple-Grid
   ".grid-container" ? do
     width       (pct 90)
@@ -226,7 +226,7 @@ gridSystem =  do
       clear   both
 
   -- .col-1, .., .col-12 { width: 96% }
-  let cs = ((".col-" <>) . pack . show) <$> [1..12 :: Int]
+  let cs = ((".col-" <>) . pack . show) <$> [1..12 ∷ Int]
   element (intercalate ", " cs) ? width (pct 96)
 
   ".col-1-sm"  ? width (pct 04.33)
@@ -281,8 +281,8 @@ gridSystem =  do
 
 --------------------------------------------------------------------------------
 
-controlWidgets :: Css
-controlWidgets =  do
+controlWidgets ∷ Css
+controlWidgets = do
   let vPad = px 4
 
   ".right-if-wide-enough" ? paddingTop vPad
@@ -329,8 +329,8 @@ controlWidgets =  do
 
 --------------------------------------------------------------------------------
 
-codeBlocks :: Css
-codeBlocks =  "div.sourceCode" ? do
+codeBlocks ∷ Css
+codeBlocks = "div.sourceCode" ? do
   -- Based on "solarized dark" https://github.com/altercation/solarized
   pre ? do
     overflowX auto
@@ -399,8 +399,8 @@ codeBlocks =  "div.sourceCode" ? do
 
 --------------------------------------------------------------------------------
 
-spinner :: Css
-spinner =  do
+spinner ∷ Css
+spinner = do
   -- Based on https://github.com/tobiasahlin/SpinKit
 
   ".sk-folding-cube-container" ? do
@@ -468,8 +468,8 @@ spinner =  do
 
 --------------------------------------------------------------------------------
 
-tiltOnHover :: Css
-tiltOnHover =  ".tilt-on-hover" ? do
+tiltOnHover ∷ Css
+tiltOnHover = ".tilt-on-hover" ? do
   let frameA = transforms [ scaleY 1.3, scaleX 1.3 ]
       frameB = transforms [ rotate (deg   20)      ]
       frameC = transforms [ rotate (deg (-10))     ]
@@ -491,8 +491,8 @@ tiltOnHover =  ".tilt-on-hover" ? do
 
 --------------------------------------------------------------------------------
 
-homePage :: Css
-homePage =  "#root-home" ? do
+homePage ∷ Css
+homePage = "#root-home" ? do
   img ? do
     display       block
     marginLeft    auto
@@ -522,8 +522,8 @@ homePage =  "#root-home" ? do
 
 --------------------------------------------------------------------------------
 
-contactForm :: Css
-contactForm =  "#root-contact" ? do
+contactForm ∷ Css
+contactForm = "#root-contact" ? do
   ".row" ? paddingTop (px 10)
   input  ? maxWidth   (px 280)
 
@@ -534,8 +534,8 @@ contactForm =  "#root-contact" ? do
 
 --------------------------------------------------------------------------------
 
-notFound404 :: Css
-notFound404 =  "#root-404" ? do
+notFound404 ∷ Css
+notFound404 = "#root-404" ? do
   h1 ? fontSize (rem 6)
 
   "#row-home-icon" ? do
@@ -547,8 +547,8 @@ notFound404 =  "#root-404" ? do
 
 --------------------------------------------------------------------------------
 
-css :: Css
-css =  do
+css ∷ Css
+css = do
   toplevel
   topnav
   typography
