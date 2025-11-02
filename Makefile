@@ -145,7 +145,7 @@ dump-contacts: build-hs
 	@stack exec -- mattaudesse-com dump-contacts --db ./mattaudesse.com.db
 
 todo:
-	@ag -i --ignore Makefile todo . || echo "No TODOs left!"
+	@rg -ig '!Makefile' todo . || echo "No TODOs left!"
 
 backup-db: BACKUP-DB-DIR=.db-backup/`date -u +"%Y"`/`date -u +"%m"`
 backup-db:
