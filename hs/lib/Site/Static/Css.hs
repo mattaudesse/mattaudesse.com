@@ -59,7 +59,7 @@ borderRadius2px = borderRadius (px 2) (px 2) (px 2) (px 2)
 
 --------------------------------------------------------------------------------
 
-boxShadowWith ∷ Double → Color → Css
+boxShadowWith ∷ Number → Color → Css
 boxShadowWith blurRadius c =
   boxShadow $ (bsColor c $ shadowWithBlur (px 0) (px 0) (px blurRadius)) :| []
 

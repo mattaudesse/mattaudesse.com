@@ -104,7 +104,7 @@ BINARY     = $(shell stack path --local-install-root)/bin/mattaudesse-com
 cert-renew:
 	@certbot certonly \
 	  --manual \
-	  --preferred-challenges dns \
+	  --preferred-challenges http \
 	  -d $(SITE_FQDN)
 
 dns-acme:
