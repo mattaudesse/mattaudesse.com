@@ -81,7 +81,7 @@ watch-ps: deps-ps
 ### Common #####################################################################
 static/matt-audesse-git.asc:
 	@gpg -a --export --export-options export-minimal 86E20EE655531286 \
-	  tee $@ | gpg -v --show-keys
+	  | tee $@ | gpg -v --show-keys
 
 build-static: build-hs static/matt-audesse-git.asc
 	@stack exec -- mattaudesse-com-static site
